@@ -1,0 +1,25 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+#bg {
+  background-image: url('/src/assets/main.jpg');
+  background-position: center;
+  background-size: 100vw 100vh;
+  background-clip: content-box;
+  animation: bg 6s infinite alternate-reverse;
+}
+
+@keyframes bg {
+  100% {
+    transform: scale(1.2, 1.2);
+  }
+}
+
+.main-content {
+  height: calc(100vh - 5rem);
+}
+
+.table-body-height {
+  height: calc(100vh - 14rem);
+}
