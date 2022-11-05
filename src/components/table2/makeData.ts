@@ -1,4 +1,4 @@
-export const data: any[] = [
+export const rows: any = [
 	{
 		firstName: 'Dusty',
 		lastName: 'Kuvalis',

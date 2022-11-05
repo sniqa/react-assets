@@ -1,28 +1,21 @@
 import { localization } from '@comps/table2/localization'
-import { FC, useMemo } from 'react'
+import {  useMemo, useEffect,useRef, useState, ReactNode } from 'react'
 //MRT Imports
-import MaterialReactTable, { MRT_ColumnDef } from 'material-react-table'
+import MaterialReactTable, { MRT_Cell, MRT_ColumnDef, MRT_Row, MRT_TableInstance, Virtualizer,  } from 'material-react-table'
+
+import { SortingState } from '@tanstack/react-table'
 
 //Material-UI Imports
 import {
-	Box,
 	Button,
-	ListItemIcon,
-	MenuItem,
-	TextField,
-	Typography,
+	Tooltip,
+	IconButton,
 } from '@mui/material'
 
-//Date Picker Imports
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
-import { DatePicker } from '@mui/x-date-pickers/DatePicker'
-import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
+import { Download as DownloadIcon, DownloadForOffline as DownloadForOfflineIcon } from '@mui/icons-material'
+import DeleteIcon from '@mui/icons-material/Delete';
 
-//Icons Imports
-import { AccountCircle, Send } from '@mui/icons-material'
-
-//Mock Data
-import { data } from './makeData'
+import { useExportToCsv } from '@comps/table2/hooks'
 
 export type Employee = {
 	firstName: string
@@ -35,118 +28,48 @@ export type Employee = {
 	avatar: string
 }
 
-const Example: FC = () => {
-	const columns = useMemo<MRT_ColumnDef<Employee>[]>(
-		() => [
-			{
-				id: 'employee', //id used to define `group` column
-				header: 'Employee',
-				columns: [
-					{
-						accessorFn: (row) => `${row.firstName} ${row.lastName}`, //accessorFn used to join multiple data into a single cell
-						id: 'name', //id is still required when using accessorFn instead of accessorKey
-						header: 'Name',
-						size: 250,
-						Cell: ({ cell, row }) => (
-							<Box
-								sx={{
-									display: 'flex',
-									alignItems: 'center',
-									gap: '1rem',
-								}}
-							>
-								<img
-									alt="avatar"
-									height={30}
-									src={row.original.avatar}
-									loading="lazy"
-									style={{ borderRadius: '50%' }}
-								/>
-								<Typography>{cell.getValue<string>()}</Typography>
-							</Box>
-						),
-					},
-					{
-						accessorKey: 'email', //accessorKey used to define `data` column. `id` gets set to accessorKey automatically
-						enableClickToCopy: true,
-						header: 'Email',
-						size: 300,
-					},
-				],
-			},
-			{
-				id: 'id',
-				header: 'Job Info',
-				columns: [
-					{
-						accessorKey: 'salary',
-						filterVariant: 'range',
-						header: 'Salary',
-						size: 200,
-						//custom conditional format and styling
-						Cell: ({ cell }) => (
-							<Box
-								sx={(theme) => ({
-									backgroundColor:
-										cell.getValue<number>() < 50_000
-											? theme.palette.error.dark
-											: cell.getValue<number>() >= 50_000 &&
-											  cell.getValue<number>() < 75_000
-											? theme.palette.warning.dark
-											: theme.palette.success.dark,
-									borderRadius: '0.25rem',
-									color: '#fff',
-									maxWidth: '9ch',
-									p: '0.25rem',
-								})}
-							>
-								{cell.getValue<number>()?.toLocaleString?.('en-US', {
-									style: 'currency',
-									currency: 'USD',
-									minimumFractionDigits: 0,
-									maximumFractionDigits: 0,
-								})}
-							</Box>
-						),
-					},
-					{
-						accessorKey: 'jobTitle', //hey a simple column for once
-						header: 'Job Title',
-						size: 350,
-					},
-					{
-						accessorFn: (row) => new Date(row.startDate), //convert to Date for sorting and filtering
-						id: 'startDate',
-						header: 'Start Date',
-						filterFn: 'lessThanOrEqualTo',
-						sortingFn: 'datetime',
-						Cell: ({ cell }) => cell.getValue<Date>()?.toLocaleDateString(), //render Date as a string
-						Header: ({ column }) => <em>{column.columnDef.header}</em>, //custom header markup
-						//Custom Date Picker Filter from @mui/x-date-pickers
-						Filter: ({ column }) => (
-							<LocalizationProvider dateAdapter={AdapterDayjs}>
-								<DatePicker
-									onChange={(newValue) => {
-										column.setFilterValue(newValue)
-									}}
-									renderInput={(params) => (
-										<TextField
-											{...params}
-											helperText={'Filter Mode: Lesss Than'}
-											sx={{ minWidth: '120px' }}
-											variant="standard"
-										/>
-									)}
-									value={column.getFilterValue()}
-								/>
-							</LocalizationProvider>
-						),
-					},
-				],
-			},
-		],
-		[]
-	)
+
+export type { MRT_ColumnDef, MRT_Row, MRT_TableInstance }
+
+export interface CustomTableProps {
+	columns: MRT_ColumnDef<any>[]
+	rows: never[]
+	renderRowActions?: ({ cell, row, table }: {
+		cell: MRT_Cell<never>;
+    	row: MRT_Row<never>;
+    	table: MRT_TableInstance<never>
+	}) => ReactNode
+	renderCustomToolbar?: ReactNode
+	deleteSelectRows?: (rows: MRT_Row<never>[]) => void
+}
+
+const EXPORT_ALL_SELECT_ROWS_TO_CSV = '导出选中行'
+const EXPORT_ALL_ROWS_TO_CSV = '导出所有行'
+const DELETE_SELECT_ROWS = '删除选择行'
+
+const CustomTable = ({columns, rows, renderRowActions, deleteSelectRows = () => {}, renderCustomToolbar}: CustomTableProps) => {
+	const { exportRows, exportData } = useMemo(() => useExportToCsv(columns), [columns])
+
+	const virtualizerInstanceRef = useRef<Virtualizer>(null)
+
+	const [data, setData] = useState([])
+	const [isLoading, setIsLoading] = useState(false)
+	const [sorting, setSorting] = useState<SortingState>([])
+
+	useEffect(() => {
+		if (typeof window !== 'undefined') {
+		  setData(rows);
+		  setIsLoading(false);
+		}
+	  }, [])
+
+	useEffect(() => {
+		if(virtualizerInstanceRef.current){
+			virtualizerInstanceRef.current.scrollToIndex(0)
+		}
+	}, [sorting])
+
+	
 
 	return (
 		<MaterialReactTable
@@ -158,105 +81,50 @@ const Example: FC = () => {
 			enablePinning
 			enableRowActions
 			enableRowSelection
-			initialState={{ showColumnFilters: true }}
+			enableRowVirtualization
+			enableColumnResizing
+			virtualizerInstanceRef={virtualizerInstanceRef}
+			muiTableContainerProps={{ sx: {maxHeight: 'calc(100vh - 12rem)', height: 'calc(100vh - 12rem)'}, className: 'scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-200' }}
+			virtualizerProps={{ overscan: 10 }}
+			initialState={{ showColumnFilters: false, }}
 			localization={localization}
 			positionToolbarAlertBanner="bottom"
-			renderDetailPanel={({ row }) => (
-				<Box
-					sx={{
-						display: 'flex',
-						justifyContent: 'space-around',
-						alignItems: 'center',
-					}}
-				>
-					<img
-						alt="avatar"
-						height={200}
-						src={row.original.avatar}
-						loading="lazy"
-						style={{ borderRadius: '50%' }}
-					/>
-					<Box sx={{ textAlign: 'center' }}>
-						<Typography variant="h4">Signature Catch Phrase:</Typography>
-						<Typography variant="h1">
-							&quot;{row.original.signatureCatchPhrase}&quot;
-						</Typography>
-					</Box>
-				</Box>
-			)}
-			renderRowActionMenuItems={({ closeMenu }) => [
-				<MenuItem
-					key={0}
-					onClick={() => {
-						// View profile logic...
-						closeMenu()
-					}}
-					sx={{ m: 0 }}
-				>
-					<ListItemIcon>
-						<AccountCircle />
-					</ListItemIcon>
-					View Profile
-				</MenuItem>,
-				<MenuItem
-					key={1}
-					onClick={() => {
-						// Send email logic...
-						closeMenu()
-					}}
-					sx={{ m: 0 }}
-				>
-					<ListItemIcon>
-						<Send />
-					</ListItemIcon>
-					Send Email
-				</MenuItem>,
-			]}
+			positionActionsColumn='last'
+			onSortingChange={setSorting}
+			state={{ isLoading, sorting }}
+			// 操作栏
+			renderRowActions={renderRowActions}
+			// toolbar
 			renderTopToolbarCustomActions={({ table }) => {
-				const handleDeactivate = () => {
-					table.getSelectedRowModel().flatRows.map((row) => {
-						alert('deactivating ' + row.getValue('name'))
-					})
-				}
-
-				const handleActivate = () => {
-					table.getSelectedRowModel().flatRows.map((row) => {
-						alert('activating ' + row.getValue('name'))
-					})
-				}
-
-				const handleContact = () => {
-					table.getSelectedRowModel().flatRows.map((row) => {
-						alert('contact ' + row.getValue('name'))
-					})
-				}
-
 				return (
-					<div style={{ display: 'flex', gap: '0.5rem' }}>
-						<Button
-							color="error"
-							disabled={table.getSelectedRowModel().flatRows.length === 0}
-							onClick={handleDeactivate}
-							variant="contained"
-						>
-							Deactivate
-						</Button>
-						<Button
-							color="success"
-							disabled={table.getSelectedRowModel().flatRows.length === 0}
-							onClick={handleActivate}
-							variant="contained"
-						>
-							Activate
-						</Button>
-						<Button
-							color="info"
-							disabled={table.getSelectedRowModel().flatRows.length === 0}
-							onClick={handleContact}
-							variant="contained"
-						>
-							Contact
-						</Button>
+					<div style={{ display: 'flex', }}>
+						<>
+							<Tooltip title={DELETE_SELECT_ROWS}>
+								<span>
+									<IconButton onClick={() => deleteSelectRows(table.getSelectedRowModel().rows)}
+										disabled={table.getSelectedRowModel().rows.length === 0}
+										>
+										<DeleteIcon />
+									</IconButton>
+								</span>
+							</Tooltip>
+
+							<Tooltip title={EXPORT_ALL_ROWS_TO_CSV}>
+								<IconButton onClick={() => exportData(data) }>
+									<DownloadIcon />
+								</IconButton>
+							</Tooltip>
+
+							<Tooltip title={EXPORT_ALL_SELECT_ROWS_TO_CSV}>
+								<IconButton
+									onClick={() => exportRows(table.getSelectedRowModel().rows) }
+								>
+									<DownloadForOfflineIcon />
+								</IconButton>
+							</Tooltip>
+
+							{renderCustomToolbar}
+						</>
 					</div>
 				)
 			}}
@@ -264,4 +132,4 @@ const Example: FC = () => {
 	)
 }
 
-export default Example
+export default CustomTable
