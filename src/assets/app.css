@@ -23,3 +23,8 @@
 .table-body-height {
   height: calc(100vh - 14rem);
 }
+
+.h-table-all {
+  height: calc(100vh - 12rem);
+  z-index: 99999;
+}

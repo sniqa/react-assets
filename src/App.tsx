@@ -23,7 +23,7 @@ const TelPage = lazy(() => import('@views/network/Tel'))
 
 const DocumentPage = lazy(() => import('@views/profile/Document'))
 const TopologyPage = lazy(() => import('@views/profile/Topology'))
-// const HomePage = lazy(() => import('@views/profile/UsbKey'))
+const TopologyDetailPage = lazy(() => import('@views/profile/TopologyDetail'))
 
 const DepartmentPage = lazy(() => import('@views/user/Department'))
 const AccountPage = lazy(() => import('@views/user/Account'))
@@ -54,6 +54,7 @@ function App() {
         {/* profile */}
         <Route path={Path.Document} element={<DocumentPage />} />
         <Route path={Path.Topology} element={<TopologyPage />} />
+        <Route path={Path.TopologyDetail} element={<TopologyDetailPage />} />
 
         {/* network */}
         <Route path={Path.Network_summary} element={<NetworkSummaryPage />} />

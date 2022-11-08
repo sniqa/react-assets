@@ -10,6 +10,7 @@ export enum Path {
   Profile = '/profile',
   Document = '/profile/document',
   Topology = '/profile/topology',
+  TopologyDetail = '/profile/topology/:id',
 
   Network = '/network',
   Network_summary = '/network/network_summary',
