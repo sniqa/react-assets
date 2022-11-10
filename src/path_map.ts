@@ -63,7 +63,7 @@ export const PathMap = {
   Network: '网络',
   Network_summary: '网络概览',
   Network_type: '网络类型',
-  Ip_address: 'ip地址总览',
+  Ip_address: 'ip地址',
   Tel: '电话',
 
   Device: '设备',

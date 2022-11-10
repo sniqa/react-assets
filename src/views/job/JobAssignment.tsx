@@ -4,11 +4,7 @@ import { useState } from 'react'
 const JobAssignment = () => {
   const [createModalOpen, setCreateModalOpen] = useState(false)
 
-  return (
-    <>
-      <CustomTable />
-    </>
-  )
+  return <>{/* <CustomTable /> */}</>
 }
 
 export default JobAssignment

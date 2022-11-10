@@ -6,6 +6,7 @@ import MaterialReactTable, {
   MRT_ColumnDef,
   MRT_Row,
   MRT_TableInstance,
+  MRT_TableState,
   Virtualizer,
 } from 'material-react-table'
 
@@ -37,7 +38,7 @@ export type { MRT_ColumnDef, MRT_Row, MRT_TableInstance }
 
 export interface CustomTableProps {
   columns: MRT_ColumnDef<any>[]
-  rows: never[]
+  rows: any[]
   renderRowActions?: ({
     cell,
     row,
@@ -50,6 +51,9 @@ export interface CustomTableProps {
   renderCustomToolbar?: ReactNode
   deleteSelectRows?: (rows: MRT_Row<never>[]) => void
   isLoading?: boolean
+  initialState?: Partial<MRT_TableState<never>>
+  rowActionsSize?: number
+  enableRowActions?: boolean
 }
 
 const EXPORT_ALL_SELECT_ROWS_TO_CSV = '导出选中行'
@@ -63,6 +67,9 @@ const CustomTable = ({
   deleteSelectRows = () => {},
   renderCustomToolbar,
   isLoading = false,
+  initialState,
+  rowActionsSize = 100,
+  enableRowActions = false,
 }: CustomTableProps) => {
   const { exportRows, exportData } = useMemo(
     () => useExportToCsv(columns),
@@ -71,14 +78,13 @@ const CustomTable = ({
 
   const virtualizerInstanceRef = useRef<Virtualizer>(null)
 
-  const [data, setData] = useState([])
+  const [data, setData] = useState(rows)
+
   const [sorting, setSorting] = useState<SortingState>([])
 
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      setData(rows)
-    }
-  }, [])
+    setData(rows)
+  }, [rows])
 
   useEffect(() => {
     if (virtualizerInstanceRef.current) {
@@ -94,7 +100,7 @@ const CustomTable = ({
       enableColumnOrdering
       enableGrouping
       enablePinning
-      enableRowActions
+      enableRowActions={enableRowActions}
       enableRowSelection
       enableRowVirtualization
       enableColumnResizing
@@ -108,7 +114,7 @@ const CustomTable = ({
           'scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-200',
       }}
       virtualizerProps={{ overscan: 10 }}
-      initialState={{ showColumnFilters: false }}
+      initialState={{ showColumnFilters: false, ...initialState }}
       localization={localization_en}
       positionToolbarAlertBanner="bottom"
       positionActionsColumn="last"
@@ -116,6 +122,12 @@ const CustomTable = ({
       state={{ isLoading, sorting }}
       // 操作栏
       renderRowActions={renderRowActions}
+      displayColumnDefOptions={{
+        'mrt-row-actions': {
+          header: '操作', //change header text
+          size: rowActionsSize, //make actions column wider
+        },
+      }}
       // toolbar
       renderTopToolbarCustomActions={({ table }) => {
         return (

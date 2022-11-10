@@ -1,3 +1,7 @@
+import AddIcon from '@mui/icons-material/Add'
+
+export { AddIcon }
+
 export const HomeIcon = () => <i className="fa-sharp fa-solid fa-house"></i>
 
 export const UserIcon = () => <i className="fa-solid fa-user-gear"></i>
@@ -19,7 +23,7 @@ export const SummaryIcon = () => <i className="fa-solid fa-chart-pie"></i>
 export const NetworkTypeIcon = () => <i className="fa-solid fa-globe"></i>
 
 export const IpAddressIcon = () => (
-	<i className="fa-solid fa-diagram-project"></i>
+  <i className="fa-solid fa-diagram-project"></i>
 )
 
 export const TelIcon = () => <i className="fa-solid fa-phone"></i>
@@ -31,7 +35,7 @@ export const ComputerIcon = () => <i className="fa-solid fa-computer"></i>
 export const OfficeEquipmentIcon = () => <i className="fa-solid fa-print"></i>
 
 export const NetworkDeviceIcon = () => (
-	<i className="fa-brands fa-battle-net"></i>
+  <i className="fa-brands fa-battle-net"></i>
 )
 
 export const ServerIcon = () => <i className="fa-solid fa-server"></i>
@@ -46,12 +50,10 @@ export const UploadIcon = () => <i className="fa-solid fa-upload"></i>
 
 export const DownloadIcon = () => <i className="fa-solid fa-download"></i>
 
-export const PlusIcon = () => <i className="fa-solid fa-plus"></i>
-
 export const SearchIcon = () => <i className="fa-solid fa-magnifying-glass"></i>
 
 export const LeftArrowIcon = () => <i className="fa-solid fa-chevron-left"></i>
 
 export const RightArrowIcon = () => (
-	<i className="fa-solid fa-chevron-right"></i>
+  <i className="fa-solid fa-chevron-right"></i>
 )

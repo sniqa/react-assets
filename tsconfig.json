@@ -15,7 +15,7 @@
     "isolatedModules": true,
     "noEmit": true,
     "jsx": "react-jsx",
-     "paths": {
+    "paths": {
       "@/*": ["./src/*"],
       "@comps/*": ["./src/components/*"],
       "@assets/*": ["./src/assets/*"],
@@ -23,7 +23,9 @@
       "@store/*": ["./src/store/*"],
       "@views/*": ["./src/views/*"],
       "@path": ["./src/path_map.ts"],
-      "@hooks/*": ["./src/hooks/*"]
+      "@hooks/*": ["./src/hooks/*"],
+      "@apis/*": ["./src/apis/*"],
+      "@types/*": ["./src/types/*"]
     }
   },
   "include": ["src"],

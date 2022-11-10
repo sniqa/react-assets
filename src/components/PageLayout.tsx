@@ -1,4 +1,6 @@
 import { ReactNode } from 'react'
+import Confirmbar from '@comps/Confirmbar'
+import Noticebar from '@comps/Noticebar'
 
 interface PageLayoutProps {
   leftAside?: ReactNode
@@ -11,6 +13,9 @@ const PageLayout = (props: PageLayoutProps) => {
 
   return (
     <div className="flex relative">
+      <Noticebar />
+      <Confirmbar />
+
       <aside className={`w-1/6 inline-block box-border`}>{leftAside}</aside>
 
       <main className="inline-block w-full h-screen box-border overflow-auto p-4">

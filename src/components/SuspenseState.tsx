@@ -1,4 +1,5 @@
 import { ReactNode, Suspense } from 'react'
+import { CircularProgress } from '@mui/material'
 
 interface LoadingProps {
   children: ReactNode
@@ -6,13 +7,8 @@ interface LoadingProps {
 
 const Loading = () => {
   return (
-    <div className="flex justify-center items-center">
-      <div
-        className="spinner-border animate-spin inline-block w-8 h-8 border-4 rounded-full"
-        role="status"
-      >
-        <span className="visually-hidden text-align"></span>
-      </div>
+    <div className="h-full flex-grow flex justify-center items-center">
+      <CircularProgress />
     </div>
   )
 }
