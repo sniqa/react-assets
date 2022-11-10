@@ -2,8 +2,9 @@ import { WithId } from '@/types/common'
 
 // department
 export interface DepartmentInfo {
-  department_name: string
-  locations: string[]
+	department_name: string
+	locations: string[]
+	remark: string
 }
 
-export type DepartmentInfoWhitId = WithId & DepartmentInfo
+export type DepartmentInfoWithId = WithId & DepartmentInfo
