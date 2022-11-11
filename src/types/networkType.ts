@@ -1,8 +1,8 @@
 import { WithId } from '@/types/common'
 
 export interface NetworkTypeInfo {
-  network_type: string
-  network_name: string
+  network_type: string //网络类型
+  network_alias: string //网络别名
   ip_address_start: string
   ip_address_end: string
   netmask: string

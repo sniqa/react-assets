@@ -15,7 +15,7 @@ const getDeviceBases = async (): Promise<DeviceBaseInfo[]> => {
 
 export const deviceBaseSlice = createSlice({
   name: 'deviceBase',
-  initialState: await getDeviceBases(),
+  initialState: await getDeviceBases().catch((err) => []),
   reducers: {
     setDeviceBases: (state, action: PayloadAction<DeviceBaseInfo[]>) =>
       action.payload,

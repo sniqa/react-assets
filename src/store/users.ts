@@ -15,7 +15,7 @@ const getUsers = async (): Promise<UserInfo[]> => {
 
 export const userSlice = createSlice({
   name: 'user',
-  initialState: await getUsers(),
+  initialState: await getUsers().catch((err) => []),
   reducers: {
     setUsers: (state, action: PayloadAction<Array<UserInfo>>) => {
       return (state = action.payload)

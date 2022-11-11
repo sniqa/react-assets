@@ -17,7 +17,7 @@ const getIpAddress = async (): Promise<IpAddressInfo[]> => {
 
 export const ipAddressSlice = createSlice({
   name: 'networkType',
-  initialState: await getIpAddress(),
+  initialState: await getIpAddress().catch((err) => []),
   reducers: {
     setIpAddress: (state, action: PayloadAction<IpAddressInfo[]>) => {
       return (state = action.payload)

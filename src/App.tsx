@@ -10,6 +10,7 @@ import { Path } from '@path'
 const HomePage = lazy(() => import('@views/Home'))
 
 const DeviceSummaryPage = lazy(() => import('@views/device/Summary'))
+const DeviceBasePage = lazy(() => import('@views/device/DeviceBase'))
 const ComputerPage = lazy(() => import('@views/device/Computer'))
 const NetworkDevicePage = lazy(() => import('@views/device/NetworkDevice'))
 const OfficeEuuipmentPage = lazy(() => import('@views/device/OfficeEquipment'))
@@ -64,6 +65,7 @@ function App() {
 
         {/* device */}
         <Route path={Path.Device_summary} element={<DeviceSummaryPage />} />
+        <Route path={Path.Device_base} element={<DeviceBasePage />} />
         <Route path={Path.Computer} element={<ComputerPage />} />
         <Route path={Path.Network_device} element={<NetworkDevicePage />} />
         <Route path={Path.Office_equipment} element={<OfficeEuuipmentPage />} />

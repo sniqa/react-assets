@@ -19,6 +19,7 @@ export enum Path {
   Tel = '/network/tel',
 
   Device = '/device',
+  Device_base = '/device/device_base',
   Device_summary = '/device/device_summary',
   Computer = '/device/computer',
   Office_equipment = '/device/office_equipment',
@@ -67,6 +68,7 @@ export const PathMap = {
   Tel: '电话',
 
   Device: '设备',
+  Device_base: '设备基础资料',
   Device_summary: '设备概览',
   Computer: '计算机',
   Office_equipment: '办公设备',

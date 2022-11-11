@@ -1,4 +1,4 @@
-import Table, { MRT_ColumnDef } from '@comps/table2/Table'
+import Table from '@comps/table2/Table'
 import { rows } from '@comps/table2/makeData'
 import {
   IconButton,
@@ -16,7 +16,8 @@ import { useAppSelector } from '@/store/index'
 import DialogWraper from '@comps/DialogWraper'
 
 import { DeviceInfo, DeviceInfoWithId } from '@/types/device'
-import { DepartmentInfo, DepartmentInfoWhitId } from '@/types/department'
+import { DeviceCategory } from '@/types/deviceBase'
+import { DepartmentInfo, DepartmentInfoWithId } from '@/types/department'
 import { UserInfo, UserInfoWithId } from '@/types/user'
 import { NetworkTypeInfo, NetworkTypeInfoWithId } from '@/types/networkType'
 import { IpAddressInfo, IpAddressInfoWithId } from '@/types/ipAddress'
@@ -29,12 +30,6 @@ import {
 } from '@hooks/device'
 
 const columns = [
-  {
-    accessorKey: '_id',
-    enableClickToCopy: true,
-    header: 'ID',
-    size: 150,
-  },
   {
     accessorKey: 'user',
     enableClickToCopy: true,
@@ -111,15 +106,15 @@ const Computer = () => {
   const deviceBase = useAppSelector((state) => state.deviceBase)
   const device = useAppSelector((state) =>
     state.devices
-      .filter((device) => device.device_category === 'computer')
+      .filter((device) => device.device_category === DeviceCategory.Computer)
       .map((device) => {
         const device_type =
           deviceBase.find((db) => db.device_model === device.device_model)
             ?.device_type || ''
         const network_name =
           networkTypes.find(
-            (networkType) => networkType.network_type === device.device_type
-          )?.network_name || ''
+            (networkType) => networkType.network_type === device.network_type
+          )?.network_alias || ''
 
         return {
           ...device,
@@ -137,18 +132,20 @@ const Computer = () => {
 
   return (
     <>
+      <div className="h-12 px-4 text-2xl">{`计算机`}</div>
+
       <Table
         columns={columns}
         rows={device}
         initialState={{
           columnVisibility: {
-            _id: false,
             device_category: false,
             device_model: false,
             disk_sn: false,
             system_version: false,
           },
         }}
+        enableRowActions
         renderCustomToolbar={
           <Tooltip title={'新增'}>
             <IconButton onClick={() => setOpenAddDialog(true)}>
@@ -202,7 +199,7 @@ export default Computer
 
 interface DeviceDetailProps {
   userSelection?: Array<UserInfoWithId>
-  locationSelection?: Array<DepartmentInfoWhitId>
+  locationSelection?: Array<DepartmentInfoWithId>
   networkTypeSelection?: Array<NetworkTypeInfoWithId>
   ipAddressSelection?: Array<IpAddressInfoWithId>
   deviceModelSelection?: Array<DeviceBaseInfoWithId>

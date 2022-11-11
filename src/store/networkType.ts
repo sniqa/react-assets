@@ -17,7 +17,7 @@ const getNetworkTypes = async (): Promise<NetworkTypeInfoWithId[]> => {
 
 export const networkTypeSlice = createSlice({
   name: 'networkType',
-  initialState: await getNetworkTypes(),
+  initialState: await getNetworkTypes().catch((err) => []),
   reducers: {
     setNetworkType: (state, action: PayloadAction<NetworkTypeInfoWithId[]>) =>
       action.payload,

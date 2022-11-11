@@ -20,6 +20,7 @@ import {
   ComputerIcon,
   OfficeEquipmentIcon,
   ServerIcon,
+  DeviceBaseIcon,
 } from '@assets/Icons'
 import { useLocation } from 'react-router-dom'
 
@@ -130,6 +131,11 @@ const routeMenus: RouteMenuProps[] = [
         title: PathMap.Usb_key,
         to: Path.Usb_key,
         icon: <UsbKeyIcon />,
+      },
+      {
+        title: PathMap.Device_base,
+        to: Path.Device_base,
+        icon: <DeviceBaseIcon />,
       },
     ],
   },

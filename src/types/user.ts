@@ -5,9 +5,10 @@ export interface UserInfo {
   account?: string
   username?: string
   nickname?: string
-  number?: number
+  number?: string
   department?: string
   location?: string
+  remark?: string
 }
 
 export type UserInfoWithId = WithId & UserInfo

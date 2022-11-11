@@ -1,8 +1,8 @@
 import { _fetch } from '@apis/fetch'
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
-import type { DeviceInfo } from '@/types/device'
+import type { DeviceInfo, DeviceInfoWithId } from '@/types/device'
 
-const getDevices = async (): Promise<DeviceInfo[]> => {
+const getDevices = async (): Promise<DeviceInfoWithId[]> => {
   try {
     const { find_devices } = await _fetch({
       find_devices: {},
@@ -20,13 +20,14 @@ const getDevices = async (): Promise<DeviceInfo[]> => {
 
 export const deviceSlice = createSlice({
   name: 'device',
-  initialState: await getDevices(),
+  initialState: await getDevices().catch((err) => []),
   reducers: {
-    setDevices: (state, action: PayloadAction<DeviceInfo[]>) => action.payload,
-    addDevice: (state, action: PayloadAction<DeviceInfo>) => {
+    setDevices: (state, action: PayloadAction<DeviceInfoWithId[]>) =>
+      action.payload,
+    addDevice: (state, action: PayloadAction<DeviceInfoWithId>) => {
       return [action.payload, ...state]
     },
-    updateDevice: (state, action: PayloadAction<DeviceInfo>) => {
+    updateDevice: (state, action: PayloadAction<DeviceInfoWithId>) => {
       return state.map((device) =>
         device._id === action.payload._id
           ? { ...device, ...action.payload }
@@ -35,13 +36,13 @@ export const deviceSlice = createSlice({
     },
     deleteManyDevice: (
       state,
-      action: PayloadAction<Array<string | number>>
+      action: PayloadAction<Array<DeviceInfoWithId>>
     ) => {
       return state.filter(
-        (device) => !action.payload.some((target) => target === device._id)
+        (device) => !action.payload.some((target) => target._id === device._id)
       )
     },
-    deleteDevice: (state, action: PayloadAction<DeviceInfo>) => {
+    deleteDevice: (state, action: PayloadAction<DeviceInfoWithId>) => {
       return state.filter((device) => device._id != action.payload._id)
     },
   },
