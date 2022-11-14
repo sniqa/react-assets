@@ -17,6 +17,7 @@ export enum Path {
   Network_type = '/network/network_type',
   Ip_address = '/network/ip_address',
   Tel = '/network/tel',
+  Liner = '/network/liner',
 
   Device = '/device',
   Device_base = '/device/device_base',
@@ -66,6 +67,7 @@ export const PathMap = {
   Network_type: '网络类型',
   Ip_address: 'ip地址',
   Tel: '电话',
+  Liner: '专线',
 
   Device: '设备',
   Device_base: '设备基础资料',

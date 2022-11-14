@@ -63,3 +63,5 @@ export const RightArrowIcon = () => (
 export const DeviceBaseIcon = () => (
   <i className="fa-solid fa-laptop-medical"></i>
 )
+
+export const LinerIcon = () => <i className="fa-solid fa-cloud"></i>

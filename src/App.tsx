@@ -21,6 +21,7 @@ const NetworkSummaryPage = lazy(() => import('@views/network/Summary'))
 const NetworkTypePage = lazy(() => import('@views/network/NetworkType'))
 const IpAddressPage = lazy(() => import('@views/network/IpAddress'))
 const TelPage = lazy(() => import('@views/network/Tel'))
+const LinerPage = lazy(() => import('@views/network/Liner'))
 
 const DocumentPage = lazy(() => import('@views/profile/Document'))
 const TopologyPage = lazy(() => import('@views/profile/Topology'))
@@ -62,6 +63,7 @@ function App() {
         <Route path={Path.Network_type} element={<NetworkTypePage />} />
         <Route path={Path.Ip_address} element={<IpAddressPage />} />
         <Route path={Path.Tel} element={<TelPage />} />
+        <Route path={Path.Liner} element={<LinerPage />} />
 
         {/* device */}
         <Route path={Path.Device_summary} element={<DeviceSummaryPage />} />

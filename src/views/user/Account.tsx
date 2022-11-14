@@ -190,7 +190,7 @@ const Account = () => {
       {/* 编辑用户 */}
       <DialogWraper
         open={openEditDialog}
-        onClose={() => setOpenEditDialog(false)}
+        onClose={() => (setOpenEditDialog(false), setTableLoading(false))}
         title={currentRow === null ? '新增用户' : '编辑用户'}
         onOk={currentRow === null ? handleAddClick : handleEditClick}
       >

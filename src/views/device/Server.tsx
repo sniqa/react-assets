@@ -1,4 +1,5 @@
 import { AddIcon } from '@/assets/Icons'
+import { useAppDispatch, useAppSelector } from '@/store/index'
 import DialogWraper from '@comps/DialogWraper'
 import Table from '@comps/table2/Table'
 import {
@@ -9,23 +10,32 @@ import {
   TextField,
   Tooltip,
 } from '@mui/material'
-import { useAppSelector } from '@store/index'
 import { useState } from 'react'
 
+import {
+  handleCreateDevice,
+  handleDeleteDevice,
+  handleUpdateDevice,
+} from '@/hooks/device'
+
+import { useChildToParent } from '@/hooks/common'
 import { DepartmentInfoWithId } from '@/types/department'
-import { DeviceInfo, DeviceInfoWithId, DeviceCategory } from '@/types/device'
-import { DeviceBaseInfoWithId } from '@/types/deviceBase'
+import { DeviceInfoWithId } from '@/types/device'
+import {
+  DeviceBaseInfoWithId,
+  DeviceCategory,
+  DeviceKind,
+} from '@/types/deviceBase'
 import { IpAddressInfoWithId } from '@/types/ipAddress'
 import { NetworkTypeInfoWithId } from '@/types/networkType'
 import { UserInfoWithId } from '@/types/user'
 
+import CustomSelect from '@comps/CustomSelect'
+import { addDevice, deleteDevice, updateDevice } from '@store/device'
+import { setIpAddress } from '@store/ipAddress'
+import { setNetworkType } from '@store/networkType'
+
 const columns = [
-  {
-    accessorKey: '_id',
-    enableClickToCopy: true,
-    header: 'ID',
-    size: 150,
-  },
   {
     accessorKey: 'user',
     enableClickToCopy: true,
@@ -94,6 +104,24 @@ const columns = [
   },
 ]
 
+const initialDeviceInfo = {
+  _id: '',
+  user: '',
+  device_name: '',
+  serial_number: '',
+  location: '',
+  network_type: '', //网络类型
+  network_alias: '',
+  ip_address: '',
+  mac: '',
+  device_model: '', //设备型号
+  device_kind: DeviceKind.None, //设备种类
+  device_category: DeviceCategory.Server, //设备分类
+  system_version: '',
+  disk_sn: '',
+  remark: '',
+}
+
 const Computer = () => {
   const users = useAppSelector((state) => state.users)
   const departments = useAppSelector((state) => state.department)
@@ -104,38 +132,99 @@ const Computer = () => {
     state.devices
       .filter((device) => device.device_category === DeviceCategory.Server)
       .map((device) => {
-        const device_type =
+        const device_kind =
           deviceBase.find((db) => db.device_model === device.device_model)
-            ?.device_type || ''
+            ?.device_kind || ''
         const network_name =
           networkTypes.find(
-            (networkType) => networkType.network_type === device.device_type
-          )?.network_name || ''
+            (networkType) => networkType.network_type === device.network_type
+          )?.network_alias || ''
 
         return {
           ...device,
-          device_type,
+          device_kind,
           network_name,
         }
       })
   )
 
-  const [openAddDialog, setOpenAddDialog] = useState(false)
+  const [openDialog, setOpenDialog] = useState(false)
 
-  const [openEditDialog, setOpenEditDialog] = useState(false)
+  const [currentRow, setCurrentRow] = useState<DeviceInfoWithId | null>(null)
 
-  const [currentRow, setCurrentRow] = useState<Partial<DeviceInfoWithId>>({})
+  const [isLoading, setIsLoading] = useState(false)
+
+  const dispatch = useAppDispatch()
+
+  const [childHook, parentHook] = useChildToParent()
+
+  // 创建
+  const handleCreateClick = async () => {
+    const deviceInfo = parentHook()
+
+    setIsLoading(true)
+
+    const res = await handleCreateDevice(deviceInfo)
+
+    setIsLoading(false)
+
+    if (res) {
+      setOpenDialog(false)
+
+      const { target, ips, network_types } = res
+      dispatch(addDevice({ ...deviceInfo, _id: target._id }))
+      dispatch(setNetworkType(network_types))
+      dispatch(setIpAddress(ips))
+    }
+  }
+
+  // 删除
+  const handleDeleteClick = async (deviceInfo: DeviceInfoWithId) => {
+    setIsLoading(true)
+
+    const res = await handleDeleteDevice(deviceInfo)
+
+    setIsLoading(false)
+
+    if (res) {
+      const { target, ips, network_types } = res
+      dispatch(deleteDevice(deviceInfo))
+      dispatch(setNetworkType(network_types))
+      dispatch(setIpAddress(ips))
+    }
+  }
+
+  // 更新
+  const handleUpdateClick = async () => {
+    const deviceInfo = parentHook()
+
+    setIsLoading(true)
+
+    const res = await handleUpdateDevice(deviceInfo)
+
+    setIsLoading(false)
+
+    if (res) {
+      setOpenDialog(false)
+
+      const { target, ips, network_types } = res
+
+      dispatch(setNetworkType(network_types))
+      dispatch(setIpAddress(ips))
+      dispatch(updateDevice(deviceInfo))
+    }
+  }
 
   return (
     <>
-      <div className="h-12 px-4 text-2xl">{`服务器`}</div>
+      <div className="h-12 px-4 text-2xl">{`计算机`}</div>
 
       <Table
         columns={columns}
         rows={device}
+        isLoading={isLoading}
         initialState={{
           columnVisibility: {
-            _id: false,
             device_category: false,
             device_model: false,
             disk_sn: false,
@@ -145,31 +234,38 @@ const Computer = () => {
         enableRowActions
         renderCustomToolbar={
           <Tooltip title={'新增'}>
-            <IconButton onClick={() => setOpenAddDialog(true)}>
+            <IconButton
+              onClick={() => (setOpenDialog(true), setCurrentRow(null))}
+            >
               <AddIcon />
             </IconButton>
           </Tooltip>
         }
         rowActionsSize={150}
         renderRowActions={({ cell, row, table }) => (
-          <Box sx={{ width: '8rem' }}>
+          <Box sx={{ width: '8rem', fontSize: '12px' }}>
             <Button
               size="small"
               onClick={() => (
-                setOpenEditDialog(true), setCurrentRow(row.original as any)
+                setOpenDialog(true), setCurrentRow(row.original as any)
               )}
             >{`编辑`}</Button>
-            <Button className="inline-block" size="small">{`删除`}</Button>
+
+            <Button
+              className="inline-block"
+              size="small"
+              onClick={() => handleDeleteClick(row.original)}
+            >{`删除`}</Button>
           </Box>
         )}
       />
 
       {/*新增设备  */}
       <DialogWraper
-        open={openAddDialog}
-        onClose={() => setOpenAddDialog(false)}
-        title={'新增设备'}
-        // onOk={() => }
+        open={openDialog}
+        onClose={() => (setOpenDialog(false), setIsLoading(false))}
+        title={currentRow === null ? '新增设备' : `编辑设备`}
+        onOk={currentRow === null ? handleCreateClick : handleUpdateClick}
       >
         <DeviceDetail
           userSelection={users}
@@ -177,16 +273,9 @@ const Computer = () => {
           networkTypeSelection={networkTypes}
           ipAddressSelection={ipAddress}
           deviceModelSelection={deviceBase}
+          defaultValue={currentRow}
+          emitValue={childHook}
         />
-      </DialogWraper>
-
-      {/* 编辑设备 */}
-      <DialogWraper
-        open={openEditDialog}
-        onClose={() => setOpenEditDialog(false)}
-        title={'编辑设备'}
-      >
-        <DeviceDetail defaultValue={currentRow} />
       </DialogWraper>
     </>
   )
@@ -200,7 +289,8 @@ interface DeviceDetailProps {
   networkTypeSelection?: Array<NetworkTypeInfoWithId>
   ipAddressSelection?: Array<IpAddressInfoWithId>
   deviceModelSelection?: Array<DeviceBaseInfoWithId>
-  defaultValue?: Partial<DeviceInfo>
+  defaultValue?: DeviceInfoWithId | null
+  emitValue: (cb: () => DeviceInfoWithId | null) => void
 }
 
 const DeviceDetail = ({
@@ -210,7 +300,14 @@ const DeviceDetail = ({
   ipAddressSelection = [],
   deviceModelSelection = [],
   defaultValue,
+  emitValue,
 }: DeviceDetailProps) => {
+  const [deviceInfo, setDeviceInfo] = useState<DeviceInfoWithId>(
+    defaultValue || initialDeviceInfo
+  )
+
+  emitValue(() => deviceInfo)
+
   return (
     <div className={`flex flex-wrap items-center py-2 pl-2`}>
       <Autocomplete
@@ -219,7 +316,10 @@ const DeviceDetail = ({
           <TextField label={`使用人`} {...params} size="small" />
         )}
         defaultValue={defaultValue?.user || ''}
-        options={userSelection.map((u) => u.username)}
+        options={userSelection.map((u) => u.username).concat('')}
+        onChange={(e, newValue) =>
+          setDeviceInfo({ ...deviceInfo, user: newValue || '' })
+        }
       />
 
       <Autocomplete
@@ -227,8 +327,11 @@ const DeviceDetail = ({
         renderInput={(params) => (
           <TextField label={`物理位置`} {...params} size="small" />
         )}
-        options={locationSelection.flatMap((l) => l.locations)}
+        options={locationSelection.flatMap((l) => l.locations).concat('')}
         defaultValue={defaultValue?.location || ''}
+        onChange={(e, newValue) =>
+          setDeviceInfo({ ...deviceInfo, location: newValue || '' })
+        }
       />
 
       <Autocomplete
@@ -236,17 +339,33 @@ const DeviceDetail = ({
         renderInput={(params) => (
           <TextField label={`所属网络`} {...params} size="small" />
         )}
-        options={networkTypeSelection.map((n) => n.network_type)}
+        options={networkTypeSelection.map((n) => n.network_type).concat('')}
         defaultValue={defaultValue?.network_type || ''}
+        onChange={(e, newValue) =>
+          setDeviceInfo({ ...deviceInfo, network_type: newValue || '' })
+        }
       />
 
-      <Autocomplete
+      {/* ip地址 */}
+      <CustomSelect
         sx={{ width: '16rem', mr: '1rem', mb: '1rem' }}
-        renderInput={(params) => (
-          <TextField label={`Ip地址`} {...params} size="small" />
-        )}
-        options={ipAddressSelection.map((i) => i.ip_address)}
-        defaultValue={defaultValue?.ip_address || ''}
+        label={`ip地址`}
+        options={
+          ipAddressSelection
+            .filter(
+              (i) =>
+                i.network_type === deviceInfo.network_type &&
+                i.is_used === false
+            )
+            .map((d) => d.ip_address)
+            .concat(
+              defaultValue?.ip_address ? ['', defaultValue.ip_address] : ''
+            ) || []
+        }
+        value={deviceInfo?.ip_address || ''}
+        onChange={(value) =>
+          setDeviceInfo({ ...deviceInfo, ip_address: value.toString() })
+        }
       />
 
       <TextField
@@ -254,6 +373,12 @@ const DeviceDetail = ({
         size="small"
         sx={{ width: '16rem', mr: '1rem', mb: '1rem' }}
         defaultValue={defaultValue?.mac || ''}
+        onChange={(e) =>
+          setDeviceInfo({
+            ...deviceInfo,
+            ip_address: e.currentTarget.value.trim(),
+          })
+        }
       />
 
       {/* <TextField label={`物理位置`} size="small" /> */}
@@ -263,8 +388,11 @@ const DeviceDetail = ({
         renderInput={(params) => (
           <TextField label={`设备型号`} {...params} size="small" />
         )}
-        options={deviceModelSelection.map((d) => d.device_model)}
+        options={deviceModelSelection.map((d) => d.device_model).concat('')}
         defaultValue={defaultValue?.device_model || ''}
+        onChange={(e, newValue) =>
+          setDeviceInfo({ ...deviceInfo, device_model: newValue || '' })
+        }
       />
 
       <TextField
@@ -272,6 +400,12 @@ const DeviceDetail = ({
         size="small"
         sx={{ width: '16rem', mr: '1rem', mb: '1rem' }}
         defaultValue={defaultValue?.system_version || ''}
+        onChange={(e) =>
+          setDeviceInfo({
+            ...deviceInfo,
+            system_version: e.currentTarget.value.trim(),
+          })
+        }
       />
 
       <TextField
@@ -279,6 +413,9 @@ const DeviceDetail = ({
         size="small"
         sx={{ width: '16rem', mr: '1rem', mb: '1rem' }}
         defaultValue={defaultValue?.disk_sn || ''}
+        onChange={(e) =>
+          setDeviceInfo({ ...deviceInfo, user: e.currentTarget.value.trim() })
+        }
       />
 
       <TextField
@@ -288,6 +425,9 @@ const DeviceDetail = ({
         size="small"
         sx={{ width: '33rem' }}
         defaultValue={defaultValue?.remark || ''}
+        onChange={(e) =>
+          setDeviceInfo({ ...deviceInfo, user: e.currentTarget.value.trim() })
+        }
       />
     </div>
   )

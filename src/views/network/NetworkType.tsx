@@ -88,9 +88,9 @@ const NetworkType = () => {
     })
   )
 
-  const [openAddDialog, setOpenAddDialog] = useState(false)
+  const [isLoading, setIsLoading] = useState(false)
 
-  const [openEditDialog, setOpenEditDialog] = useState(false)
+  const [openAddDialog, setOpenAddDialog] = useState(false)
 
   const [childHook, parentHook] = useChildToParent()
 
@@ -100,9 +100,13 @@ const NetworkType = () => {
   const handleAddClick = async () => {
     const res = parentHook()
 
+    setIsLoading(true)
+
     const result = await handleAddNetworkType(res)
 
     if (result) {
+      setIsLoading(false)
+
       setOpenAddDialog(false)
 
       const { ips, devices, targetNetworkType } = result
@@ -115,9 +119,13 @@ const NetworkType = () => {
 
   // 删除
   const handleDeleteClick = async (data: NetworkTypeInfoWithId) => {
+    setIsLoading(true)
+
     const res = await handleDeleteNetworkType(data)
 
     if (res) {
+      setIsLoading(false)
+
       const { ips, devices, targetNetworkType } = res
       dispatch(setIpAddress(ips))
       dispatch(setDevices(devices))
@@ -132,6 +140,7 @@ const NetworkType = () => {
       <Table
         columns={columns}
         rows={networkTypes}
+        isLoading={isLoading}
         enableRowActions
         renderCustomToolbar={
           <Tooltip title={'新增'}>
@@ -159,7 +168,7 @@ const NetworkType = () => {
 
       <DialogWraper
         open={openAddDialog}
-        onClose={() => setOpenAddDialog(false)}
+        onClose={() => (setOpenAddDialog(false), setIsLoading(false))}
         title={'新增网络类型'}
         onOk={handleAddClick}
       >

@@ -21,6 +21,7 @@ import {
   OfficeEquipmentIcon,
   ServerIcon,
   DeviceBaseIcon,
+  LinerIcon,
 } from '@assets/Icons'
 import { useLocation } from 'react-router-dom'
 
@@ -93,6 +94,11 @@ const routeMenus: RouteMenuProps[] = [
         title: PathMap.Tel,
         to: Path.Tel,
         icon: <TelIcon />,
+      },
+      {
+        title: PathMap.Liner,
+        to: Path.Liner,
+        icon: <LinerIcon />,
       },
     ],
   },
