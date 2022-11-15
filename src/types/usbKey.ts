@@ -3,9 +3,9 @@ import { WithId } from '@/types/common'
 export interface UsbKeyInfo {
 	number: string
 	user: string
-	enable_time: string
-	collection_time: string
-	return_time: string
+	enable_time: number
+	collection_time: number
+	return_time: number
 	remark: string
 }
 

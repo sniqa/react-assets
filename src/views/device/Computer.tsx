@@ -4,7 +4,6 @@ import Table from '@comps/table2/Table'
 import {
 	Autocomplete,
 	Box,
-	Button,
 	IconButton,
 	TextField,
 	Tooltip,
@@ -34,6 +33,8 @@ import CustomSelect from '@comps/CustomSelect'
 import { addDevice, deleteDevice, updateDevice } from '@store/device'
 import { setIpAddress } from '@store/ipAddress'
 import { setNetworkType } from '@store/networkType'
+
+import CustomButton from '@comps/CustomButton'
 
 const columns = [
 	{
@@ -244,18 +245,19 @@ const Computer = () => {
 				rowActionsSize={150}
 				renderRowActions={({ cell, row, table }) => (
 					<Box sx={{ width: '8rem', fontSize: '12px' }}>
-						<Button
-							size="small"
+						<CustomButton
 							onClick={() => (
 								setOpenDialog(true), setCurrentRow(row.original as any)
 							)}
-						>{`编辑`}</Button>
+						>
+							{`编辑`}
+						</CustomButton>
 
-						<Button
-							className="inline-block"
-							size="small"
+						<CustomButton
 							onClick={() => handleDeleteClick(row.original)}
-						>{`删除`}</Button>
+						>{`删除`}</CustomButton>
+
+						{/* <CustomButton>{`历史`}</CustomButton> */}
 					</Box>
 				)}
 			/>

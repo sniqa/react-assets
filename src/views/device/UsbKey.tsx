@@ -1,12 +1,13 @@
 import { UsbKeyInfoWithId } from '@/types/usbKey'
 import { AddIcon } from '@assets/Icons'
+import CustomButton from '@comps/CustomButton'
 import DialogWraper from '@comps/DialogWraper'
 import Table from '@comps/table2/Table'
 import { useChildToParent } from '@hooks/common'
+
 import {
 	Autocomplete,
 	Box,
-	Button,
 	IconButton,
 	TextField,
 	Tooltip,
@@ -23,9 +24,12 @@ import {
 } from '@hooks/usbKey'
 import { useAppSelector } from '@store/index'
 
-const date = new Date().toLocaleDateString()
+import dayjs from 'dayjs'
+import zhcn from 'dayjs/locale/zh-cn'
 
-console.log(date)
+dayjs.locale(zhcn)
+
+const date = new Date().getTime()
 
 const initialState: UsbKeyInfoWithId = {
 	_id: '',
@@ -91,6 +95,7 @@ const UsbKey = () => {
 
 	const [isLoading, setIsLoading] = useState(false)
 
+	// 初始化
 	useEffect(() => {
 		const getUsbKeys = async () => {
 			const { find_usb_key } = await _fetch({ find_usb_key: {} })
@@ -98,7 +103,16 @@ const UsbKey = () => {
 			if (find_usb_key) {
 				const { success, data } = find_usb_key
 
-				success && setRows(data)
+				const newData = data.map((d: UsbKeyInfoWithId) => ({
+					...d,
+					enable_time: new Date(d.enable_time).toLocaleDateString(),
+					collection_time: new Date(d.collection_time).toLocaleDateString(),
+					return_time: new Date(d.return_time).toLocaleDateString(),
+				}))
+
+				console.log(newData)
+
+				success && setRows(newData)
 			}
 		}
 
@@ -110,29 +124,70 @@ const UsbKey = () => {
 		const res = parentHook()
 
 		setIsLoading(true)
+		setOpenDialog(false)
 
 		const result = await handleCreateUsbKey(res)
 
 		setIsLoading(false)
+
+		if (result) {
+			setRows((olds) => [
+				{
+					...{
+						...res,
+						enable_time: new Date(res.enable_time).toLocaleDateString(),
+						collection_time: new Date(res.collection_time).toLocaleDateString(),
+						return_time: new Date(res.return_time).toLocaleDateString(),
+					},
+					_id: result.result,
+				},
+				...olds,
+			])
+		}
 	}
 
 	// 删除
 	const handleDeleteClick = async (usbKey: UsbKeyInfoWithId) => {
 		setIsLoading(true)
+		setOpenDialog(false)
 
-		const res = await handleDeleteUsbKey(usbKey)
+		const result = await handleDeleteUsbKey(usbKey)
+
 		setIsLoading(false)
+
+		if (result) {
+			setRows((olds) => olds.filter((old) => old._id != usbKey._id))
+		}
 	}
 
 	// 更新
 	const handleUpdateClick = async () => {
 		const res = parentHook()
 
+		setOpenDialog(false)
+
 		setIsLoading(true)
 
 		const result = await handleUpdateUsbKey(res)
 
 		setIsLoading(false)
+
+		if (result) {
+			setRows((olds) =>
+				olds.map((old) =>
+					old._id === res._id
+						? {
+								...res,
+								enable_time: new Date(res.enable_time).toLocaleDateString(),
+								collection_time: new Date(
+									res.collection_time
+								).toLocaleDateString(),
+								return_time: new Date(res.return_time).toLocaleDateString(),
+						  }
+						: old
+				)
+			)
+		}
 	}
 
 	return (
@@ -156,18 +211,15 @@ const UsbKey = () => {
 				rowActionsSize={150}
 				renderRowActions={({ cell, row, table }) => (
 					<Box sx={{ width: '8rem', fontSize: '12px' }}>
-						<Button
-							size="small"
+						<CustomButton
 							onClick={() => (
 								setOpenDialog(true), setCurrentRow(row.original as any)
 							)}
-						>{`编辑`}</Button>
+						>{`编辑`}</CustomButton>
 
-						<Button
-							className="inline-block"
-							size="small"
+						<CustomButton
 							onClick={() => handleDeleteClick(row.original)}
-						>{`删除`}</Button>
+						>{`删除`}</CustomButton>
 					</Box>
 				)}
 			></Table>
@@ -234,13 +286,15 @@ const UsbKeyDetail = ({
 				{/* 启用时间 */}
 				<DatePicker
 					onChange={(value) =>
-						setUsbKey({ ...usbKey, enable_time: value || '' })
+						setUsbKey({
+							...usbKey,
+							enable_time: value?.valueOf() || new Date().getTime(),
+						})
 					}
 					value={usbKey.enable_time}
 					renderInput={(params) => (
 						<TextField
 							size="small"
-							defaultValue={originData?.enable_time}
 							sx={{ width: '16rem', mr: '1rem', mb: '1rem' }}
 							{...params}
 							label={`启用时间`}
@@ -250,14 +304,17 @@ const UsbKeyDetail = ({
 
 				{/* 领用时间 */}
 				<DatePicker
-					onChange={(value) =>
-						setUsbKey({ ...usbKey, collection_time: value || '' })
-					}
+					onChange={(value) => {
+						setUsbKey({
+							...usbKey,
+							collection_time: value?.valueOf() || new Date().getTime(),
+						})
+					}}
 					value={usbKey.collection_time}
 					renderInput={(params) => (
 						<TextField
 							size="small"
-							defaultValue={originData?.collection_time}
+							// defaultValue={originData?.collection_time}
 							sx={{ width: '16rem', mb: '1rem' }}
 							{...params}
 							label={`领用时间`}
@@ -268,13 +325,16 @@ const UsbKeyDetail = ({
 				{/* 归还时间 */}
 				<DatePicker
 					onChange={(value) =>
-						setUsbKey({ ...usbKey, return_time: value || '' })
+						setUsbKey({
+							...usbKey,
+							return_time: value?.valueOf() || new Date().getTime(),
+						})
 					}
 					value={usbKey.return_time}
 					renderInput={(params) => (
 						<TextField
 							sx={{ width: '16rem', mr: '1rem', mb: '1rem' }}
-							defaultValue={originData?.return_time}
+							// defaultValue={originData?.return_time}
 							size="small"
 							{...params}
 							label={`归还时间`}
