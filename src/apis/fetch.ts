@@ -1,4 +1,4 @@
-import { notice } from './mitt'
+import { notice } from '@apis/mitt'
 
 const url = `http://${window.location.hostname}`
 

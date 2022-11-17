@@ -26,15 +26,12 @@ const TopologyCard = ({
   create_timestamp = 0,
   last_modify_timestamp = 0,
 }: TopologyCardProps) => {
-  const createTime = new Date(create_timestamp).toDateString()
-  const lastModifyTime = new Date(last_modify_timestamp).toDateString()
+  const createTime = new Date(create_timestamp).toLocaleDateString()
+  const lastModifyTime = new Date(last_modify_timestamp).toLocaleDateString()
 
   return (
-    <Link to={to}>
-      <Box
-        sx={{ width: { sm: '100%', md: '50%', xl: '33.3%', lg: '50%' } }}
-        className={`p-2`}
-      >
+    <Link to={to} className={`sm:w-full md:w-1/2 2xl:w-1/3`}>
+      <Box className={`p-2`}>
         <Card>
           <CardHeader
             className="border-b"

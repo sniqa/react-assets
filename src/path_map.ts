@@ -11,6 +11,7 @@ export enum Path {
   Document = '/profile/document',
   Topology = '/profile/topology',
   TopologyDetail = '/profile/topology/:id',
+  TopologyCreate = '/profile/topology/create',
 
   Network = '/network',
   Network_summary = '/network/network_summary',
@@ -61,6 +62,7 @@ export const PathMap = {
   Profile: '资料',
   Document: '文档',
   Topology: '拓扑图',
+  Topology_create: '创建拓扑图',
 
   Network: '网络',
   Network_summary: '网络概览',
