@@ -1,7 +1,5 @@
-import React from 'react'
-
 const Summary = () => {
-  return <div>Summary</div>
+	return <div></div>
 }
 
 export default Summary

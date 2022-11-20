@@ -3,28 +3,32 @@
 @tailwind utilities;
 
 #bg {
-  background-image: url('/src/assets/main.jpg');
-  background-position: center;
-  background-size: 100vw 100vh;
-  background-clip: content-box;
-  animation: bg 6s infinite alternate-reverse;
+	background-image: url('/src/assets/main.jpg');
+	background-position: center;
+	background-size: 100vw 100vh;
+	background-clip: content-box;
+	animation: bg 6s infinite alternate-reverse;
 }
 
 @keyframes bg {
-  100% {
-    transform: scale(1.2, 1.2);
-  }
+	100% {
+		transform: scale(1.2, 1.2);
+	}
 }
 
 .main-content {
-  height: calc(100vh - 5rem);
+	height: calc(100vh - 5rem);
 }
 
 .table-body-height {
-  height: calc(100vh - 14rem);
+	height: calc(100vh - 14rem);
 }
 
 .h-table-all {
-  height: calc(100vh - 12rem);
-  z-index: 99999;
+	height: calc(100vh - 12rem);
+	z-index: 99999;
+}
+
+.h-full-important {
+	height: 100% !important;
 }
