@@ -17,7 +17,7 @@ const TopologyCard = ({
 }: TopologyCardProps) => {
 	return (
 		<Link to={to} className={`p-2 <sm:w-full lg:w-1/2 xl:w-1/3 `}>
-			<div className="px-4 box-border border rounded-xl  shadow-lg">
+			<div className="px-4 box-border border rounded-xl  shadow-md">
 				<section className={`h-12 border-b flex items-center `}>
 					<span className="text-xl p-2">{title}</span>
 				</section>

@@ -26,6 +26,7 @@ const LinerPage = lazy(() => import('@views/network/Liner'))
 const DocumentPage = lazy(() => import('@views/profile/Document'))
 const DocumentDetailPage = lazy(() => import('@views/profile/DocumentDetail'))
 const DocumentCreatePage = lazy(() => import('@views/profile/DocumentCreate'))
+const DocumentUpdatePage = lazy(() => import('@views/profile/DocumentUpdate'))
 const TopologyPage = lazy(() => import('@views/profile/Topology'))
 const TopologyDetailPage = lazy(() => import('@views/profile/TopologyDetail'))
 const TopologyCreatePage = lazy(() => import('@views/profile/TopologyCreate'))
@@ -60,6 +61,7 @@ function App() {
 				<Route path={Path.Document} element={<DocumentPage />} />
 				<Route path={Path.DocumentDetail} element={<DocumentDetailPage />} />
 				<Route path={Path.DocumentCreate} element={<DocumentCreatePage />} />
+				<Route path={Path.DocumentUpdateId} element={<DocumentUpdatePage />} />
 				<Route path={Path.Topology} element={<TopologyPage />} />
 				<Route path={Path.TopologyDetail} element={<TopologyDetailPage />} />
 				<Route path={Path.TopologyCreate} element={<TopologyCreatePage />} />

@@ -11,6 +11,8 @@ export enum Path {
 	Document = '/profile/document',
 	DocumentDetail = '/profile/document/:id',
 	DocumentCreate = '/profile/document/create',
+	DocumentUpdate = '/profile/document/update',
+	DocumentUpdateId = '/profile/document/update/:id',
 	Topology = '/profile/topology',
 	TopologyDetail = '/profile/topology/:id',
 	TopologyCreate = '/profile/topology/create',

@@ -236,7 +236,7 @@ const NetDevice = () => {
 
 	return (
 		<>
-			<div className="h-12 px-4 text-2xl">{`计算机`}</div>
+			<div className="h-12 px-4 text-2xl">{`网络设备`}</div>
 			<Table
 				columns={columns}
 				rows={device}

@@ -1,13 +1,15 @@
 import { configureStore } from '@reduxjs/toolkit'
 import { TypedUseSelectorHook, useDispatch, useSelector } from 'react-redux'
 
-import networkTypeReducer from './networkType'
-import userReducer from './users'
 import confirmReducer from './confirm'
 import departmentReducer from './department'
-import deviceBaseReducer from './deviceBase'
-import ipAddressReducer from './ipAddress'
 import deviceReducer from './device'
+import deviceBaseReducer from './deviceBase'
+import documentReducer from './document'
+import documentHistoryReducer from './documentHistory'
+import ipAddressReducer from './ipAddress'
+import networkTypeReducer from './networkType'
+import userReducer from './users'
 
 const store = configureStore({
 	reducer: {
@@ -18,6 +20,8 @@ const store = configureStore({
 		deviceBase: deviceBaseReducer,
 		devices: deviceReducer,
 		ipAddress: ipAddressReducer,
+		document: documentReducer,
+		documentHistory: documentHistoryReducer,
 	},
 })
 

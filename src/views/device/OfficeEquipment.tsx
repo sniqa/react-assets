@@ -238,7 +238,7 @@ const OfficeEquipment = () => {
 
 	return (
 		<>
-			<div className="h-12 px-4 text-2xl">{`计算机`}</div>
+			<div className="h-12 px-4 text-2xl">{`办公设备`}</div>
 			<Table
 				columns={columns}
 				rows={device}

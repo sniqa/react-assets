@@ -131,13 +131,19 @@ const initialDeviceInfo = {
 	mac: '',
 	device_model: '', //设备型号
 	device_kind: DeviceKind.None, //设备种类
-	device_category: DeviceCategory.Server, //设备分类
+	device_category: DeviceCategory.Computer, //设备分类
 	system_version: '',
 	disk_sn: '',
 	remark: '',
 }
 
-const Server = () => {
+interface DeviceProps {
+	onCreate: () => void
+	onDelete: () => void
+	onUpdate: () => void
+}
+
+const Device = ({ onCreate, onDelete, onUpdate }: DeviceProps) => {
 	const users = useAppSelector((state) => state.users)
 	const departments = useAppSelector((state) => state.department)
 	const networkTypes = useAppSelector((state) => state.networkTypes)
@@ -145,7 +151,7 @@ const Server = () => {
 	const deviceBase = useAppSelector((state) => state.deviceBase)
 	const device = useAppSelector((state) =>
 		state.devices
-			.filter((device) => device.device_category === DeviceCategory.Server)
+			.filter((device) => device.device_category === DeviceCategory.Computer)
 			.map((device) => {
 				const device_kind =
 					deviceBase.find((db) => db.device_model === device.device_model)
@@ -166,8 +172,6 @@ const Server = () => {
 	const [openDialog, setOpenDialog] = useState(false)
 
 	const [openUploadDialog, setOpenUploadDialog] = useState(false)
-
-	const [uploading, setUploading] = useState(false)
 
 	const [currentRow, setCurrentRow] = useState<DeviceInfoWithId | null>(null)
 
@@ -236,7 +240,7 @@ const Server = () => {
 
 	return (
 		<>
-			<div className="h-12 px-4 text-2xl">{`服务器`}</div>
+			<div className="h-12 px-4 text-2xl">{`计算机`}</div>
 			<Table
 				columns={columns}
 				rows={device}
@@ -315,7 +319,7 @@ const Server = () => {
 	)
 }
 
-export default Server
+export default Device
 
 interface DeviceDetailProps {
 	userSelection?: Array<UserInfoWithId>

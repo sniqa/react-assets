@@ -2,13 +2,14 @@ import { useChildToParent } from '@/hooks/common'
 import { _fetch } from '@apis/fetch'
 import { notice } from '@apis/mitt'
 import { upload } from '@apis/upload'
+import ArrowBack from '@comps/ArrowBack'
 import DialogWraper from '@comps/DialogWraper'
 import { Button, TextField } from '@mui/material'
+import { Path } from '@path'
 import MdEditor from 'md-editor-rt'
 import 'md-editor-rt/lib/style.css'
 import { useState } from 'react'
-
-import ArrowBack from '@comps/ArrowBack'
+import { useNavigate } from 'react-router-dom'
 
 const DocumentCreate = () => {
 	const [text, setText] = useState('')
@@ -16,6 +17,8 @@ const DocumentCreate = () => {
 	const [openDialog, setOpenDialog] = useState(false)
 
 	const [childHook, parentHook] = useChildToParent()
+
+	const navigate = useNavigate()
 
 	const handleSaveClick = async () => {
 		const value = parentHook()
@@ -29,6 +32,8 @@ const DocumentCreate = () => {
 		const { create_document } = await _fetch({ create_document: document })
 
 		if (create_document.success) {
+			navigate(`${Path.Document}/${create_document.data}`)
+
 			return notice({
 				status: 'success',
 				message: `保存成功`,
@@ -70,7 +75,7 @@ const DocumentCreate = () => {
 						}
 					)
 
-					callback(res.data)
+					res.data && callback(res.data)
 				}}
 			/>
 

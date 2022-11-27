@@ -1107,6 +1107,46 @@
   resolved "https://registry.npmmirror.com/@esbuild/linux-loong64/-/linux-loong64-0.15.14.tgz#1221684955c44385f8af34f7240088b7dc08d19d"
   integrity sha512-eQi9rosGNVQFJyJWV0HCA5WZae/qWIQME7s8/j8DMvnylfBv62Pbu+zJ2eUDqNf2O4u3WB+OEXyfkpBoe194sg==
 
+"@fortawesome/fontawesome-common-types@6.2.1":
+  version "6.2.1"
+  resolved "https://registry.npmmirror.com/@fortawesome/fontawesome-common-types/-/fontawesome-common-types-6.2.1.tgz#411e02a820744d3f7e0d8d9df9d82b471beaa073"
+  integrity sha512-Sz07mnQrTekFWLz5BMjOzHl/+NooTdW8F8kDQxjWwbpOJcnoSg4vUDng8d/WR1wOxM0O+CY9Zw0nR054riNYtQ==
+
+"@fortawesome/fontawesome-svg-core@^6.2.1":
+  version "6.2.1"
+  resolved "https://registry.npmmirror.com/@fortawesome/fontawesome-svg-core/-/fontawesome-svg-core-6.2.1.tgz#e87e905e444b5e7b715af09b64d27b53d4c8f9d9"
+  integrity sha512-HELwwbCz6C1XEcjzyT1Jugmz2NNklMrSPjZOWMlc+ZsHIVk+XOvOXLGGQtFBwSyqfJDNgRq4xBCwWOaZ/d9DEA==
+  dependencies:
+    "@fortawesome/fontawesome-common-types" "6.2.1"
+
+"@fortawesome/free-brands-svg-icons@^6.2.1":
+  version "6.2.1"
+  resolved "https://registry.npmmirror.com/@fortawesome/free-brands-svg-icons/-/free-brands-svg-icons-6.2.1.tgz#04a6d6f7898f7ef392aba7a65030a584d4f4c84f"
+  integrity sha512-L8l4MfdHPmZlJ72PvzdfwOwbwcCAL0vx48tJRnI6u1PJXh+j2f3yDoKyQgO3qjEsgD5Fr2tQV/cPP8F/k6aUig==
+  dependencies:
+    "@fortawesome/fontawesome-common-types" "6.2.1"
+
+"@fortawesome/free-regular-svg-icons@^6.2.1":
+  version "6.2.1"
+  resolved "https://registry.npmmirror.com/@fortawesome/free-regular-svg-icons/-/free-regular-svg-icons-6.2.1.tgz#650e56d937755a8341f2eef258ecb6f95458820f"
+  integrity sha512-wiqcNDNom75x+pe88FclpKz7aOSqS2lOivZeicMV5KRwOAeypxEYWAK/0v+7r+LrEY30+qzh8r2XDaEHvoLsMA==
+  dependencies:
+    "@fortawesome/fontawesome-common-types" "6.2.1"
+
+"@fortawesome/free-solid-svg-icons@^6.2.1":
+  version "6.2.1"
+  resolved "https://registry.npmmirror.com/@fortawesome/free-solid-svg-icons/-/free-solid-svg-icons-6.2.1.tgz#2290ea5adcf1537cbd0c43de6feb38af02141d27"
+  integrity sha512-oKuqrP5jbfEPJWTij4sM+/RvgX+RMFwx3QZCZcK9PrBDgxC35zuc7AOFsyMjMd/PIFPeB2JxyqDr5zs/DZFPPw==
+  dependencies:
+    "@fortawesome/fontawesome-common-types" "6.2.1"
+
+"@fortawesome/react-fontawesome@^0.2.0":
+  version "0.2.0"
+  resolved "https://registry.npmmirror.com/@fortawesome/react-fontawesome/-/react-fontawesome-0.2.0.tgz#d90dd8a9211830b4e3c08e94b63a0ba7291ddcf4"
+  integrity sha512-uHg75Rb/XORTtVt7OS9WoK8uM276Ufi7gCzshVWkUJbHhh3svsUUeqXerrM96Wm7fRiDzfKRwSoahhMIkGAYHw==
+  dependencies:
+    prop-types "^15.8.1"
+
 "@icons/material@^0.2.4":
   version "0.2.4"
   resolved "https://registry.npmmirror.com/@icons/material/-/material-0.2.4.tgz#e90c9f71768b3736e76d7dd6783fc6c2afa88bc8"
@@ -1405,24 +1445,24 @@
   resolved "https://registry.npmmirror.com/@tailwindcss/line-clamp/-/line-clamp-0.4.2.tgz#f353c5a8ab2c939c6267ac5b907f012e5ee130f9"
   integrity sha512-HFzAQuqYCjyy/SX9sLGB1lroPzmcnWv1FHkIpmypte10hptf4oPUfucryMKovZh2u0uiS9U5Ty3GghWfEJGwVw==
 
-"@tanstack/match-sorter-utils@8.5.14":
-  version "8.5.14"
-  resolved "https://registry.npmmirror.com/@tanstack/match-sorter-utils/-/match-sorter-utils-8.5.14.tgz#12efcd536abe491d09521e0242bc4d51442f8a8a"
-  integrity sha512-lVNhzTcOJ2bZ4IU+PeCPQ36vowBHvviJb2ZfdRFX5uhy7G0jM8N34zAMbmS5ZmVH8D2B7oU82OWo0e/5ZFzQrw==
+"@tanstack/match-sorter-utils@8.7.0":
+  version "8.7.0"
+  resolved "https://registry.npmmirror.com/@tanstack/match-sorter-utils/-/match-sorter-utils-8.7.0.tgz#60b09a6d3d7974d5f86f1318053c1bd5a85fb0be"
+  integrity sha512-OgfIPMHTfuw9JGcXCCoEHWFP/eSP2eyhCYwkrFnWBM3NbUPAgOlFP11DbM7cozDRVB0XbPr1tD4pLAtWKlVUVg==
   dependencies:
     remove-accents "0.4.2"
 
-"@tanstack/react-table@8.5.27":
-  version "8.5.27"
-  resolved "https://registry.npmmirror.com/@tanstack/react-table/-/react-table-8.5.27.tgz#3e69f9a25ea1a479a903d9c311ad46d2168ed640"
-  integrity sha512-dUl8qRGvWVaJkOk/goUxb3w675FtioY7uh6NalRG04dYBiwIpjHn8a1Jhmp9lE+Puk88GZ0OCF7svCVXIJviqQ==
+"@tanstack/react-table@8.7.0":
+  version "8.7.0"
+  resolved "https://registry.npmmirror.com/@tanstack/react-table/-/react-table-8.7.0.tgz#853fae74db6bf49738d0f18e4d507b00262fc09c"
+  integrity sha512-VJ+9rsymDLaSU35rWOfX0bwNXnpW1i+T14wi+sHx8lxwAsfg6IY1Yw7FPfGADvUFP5eQn2t4nlohAJd+IoEj/Q==
   dependencies:
-    "@tanstack/table-core" "8.5.27"
+    "@tanstack/table-core" "8.7.0"
 
-"@tanstack/table-core@8.5.27":
-  version "8.5.27"
-  resolved "https://registry.npmmirror.com/@tanstack/table-core/-/table-core-8.5.27.tgz#8b5167068637d67a585cfb844f233b52f6608a69"
-  integrity sha512-sxGZPV97bNYap+U/ZxYVmx3Uy872Fc/M0qjKl85PzMaqBgikosybtkOEEjLdeJlBthqG5G8VI6zN1/Pej9awWA==
+"@tanstack/table-core@8.7.0":
+  version "8.7.0"
+  resolved "https://registry.npmmirror.com/@tanstack/table-core/-/table-core-8.7.0.tgz#046e376cd536cd53727a91a880345f92d3ec5859"
+  integrity sha512-DRiRbOAmDHapzUBd4/C4Yy+FTug4fdGp5sdZWWfCq4wxRoaXQraQgbzmK23a3QcbwLFtLeNezPkZrqbJWuX+VA==
 
 "@turf/bbox-polygon@^6.5.0":
   version "6.5.0"
@@ -3061,19 +3101,19 @@ material-colors@^1.2.1:
   resolved "https://registry.npmmirror.com/material-colors/-/material-colors-1.2.6.tgz#6d1958871126992ceecc72f4bcc4d8f010865f46"
   integrity sha512-6qE4B9deFBIa9YSpOc9O0Sgc43zTeVYbgDT5veRKSlB2+ZuHNoVVxA1L/ckMUayV9Ay9y7Z/SZCLcGteW9i7bg==
 
-material-react-table@^1.3.2:
-  version "1.3.9"
-  resolved "https://registry.npmmirror.com/material-react-table/-/material-react-table-1.3.9.tgz#daf9d5e1ef6fbc6641850d2b2ab7767c160ac5ad"
-  integrity sha512-Iu6Sh/AFMWjc2xbrgPJXnIQrZt+rPedz5dQ8O4f8zzI/XTrI1xqahVTjsc6mOLCXfqfX8MUQ32DUjinFsi5D2A==
+material-react-table@^1.3.15:
+  version "1.3.16"
+  resolved "https://registry.npmmirror.com/material-react-table/-/material-react-table-1.3.16.tgz#2fc7096a7420311dac4225a1f48ce31460daa8ea"
+  integrity sha512-TgsOJqcRElJ9BdLbRAQrRDYIOK5PW2NzG1M26wGZwj1ncRzI2MuDjvw834c8KXYRvhXYgeFD3L9KSN6UdvwMZw==
   dependencies:
-    "@tanstack/match-sorter-utils" "8.5.14"
-    "@tanstack/react-table" "8.5.27"
+    "@tanstack/match-sorter-utils" "8.7.0"
+    "@tanstack/react-table" "8.7.0"
     react-virtual "^2.10.4"
 
-md-editor-rt@^2.3.0:
-  version "2.4.1"
-  resolved "https://registry.npmmirror.com/md-editor-rt/-/md-editor-rt-2.4.1.tgz#2225058ea8f70e51b97b53ca5301d04874a73afd"
-  integrity sha512-U3NgUpBUcFnojlWd3IvCgfjPzSD51lqnb1ddLMy3Vu87AdzJzCw8MKjSbKgjpctppZqeiQpoPpT7VfZ8C4TamA==
+md-editor-rt@^2.4.2:
+  version "2.4.2"
+  resolved "https://registry.npmmirror.com/md-editor-rt/-/md-editor-rt-2.4.2.tgz#2f5c6460f76e007f3ca4d6f98dbedf8d95ae6ef1"
+  integrity sha512-dRaGqIh9ZzeXSkeVQ36/tzlm3whSPWNLLYrXcdlAiRT+G+jdWgEcaMjmisk45XCOHwwsvlacQ+RUwKnUIAY8fA==
 
 mdn-data@2.0.14:
   version "2.0.14"

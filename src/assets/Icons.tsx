@@ -6,64 +6,88 @@ import UploadIcon from '@mui/icons-material/Upload'
 
 export { AddIcon, AddCircleOutlineIcon, DeleteIcon, UploadIcon, ArrowBackIcon }
 
-export const HomeIcon = () => <i className="fa-sharp fa-solid fa-house"></i>
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
-export const UserIcon = () => <i className="fa-solid fa-user-gear"></i>
+import { faUsb } from '@fortawesome/free-brands-svg-icons'
+import {} from '@fortawesome/free-regular-svg-icons'
+import {
+	faBookOpen,
+	faBuilding,
+	faChartPie,
+	faChevronLeft,
+	faChevronRight,
+	faCloud,
+	faComputer,
+	faDesktop,
+	faDiagramProject,
+	faDownload,
+	faFileLines,
+	faGlobe,
+	faHardDrive,
+	faHouse,
+	faImages,
+	faLaptopMedical,
+	faMagnifyingGlass,
+	faMessage,
+	faNetworkWired,
+	faPhone,
+	faPrint,
+	faServer,
+	faTrash,
+	faUser,
+	faUserGear,
+} from '@fortawesome/free-solid-svg-icons'
 
-export const DepartmentIcon = () => <i className="fa-solid fa-building"></i>
+export const HomeIcon = () => <FontAwesomeIcon icon={faHouse} />
 
-export const AccountIcon = () => <i className="fa-solid fa-user"></i>
+export const UserIcon = () => <FontAwesomeIcon icon={faUserGear} />
 
-export const ProfileIcon = () => <i className="fa-solid fa-book-open"></i>
+export const DepartmentIcon = () => <FontAwesomeIcon icon={faBuilding} />
 
-export const DocumnetIcon = () => <i className="fa-solid fa-file-lines"></i>
+export const AccountIcon = () => <FontAwesomeIcon icon={faUser} />
 
-export const TopologyIcon = () => <i className="fa-solid fa-images"></i>
+export const ProfileIcon = () => <FontAwesomeIcon icon={faBookOpen} />
 
-export const NetworkIcon = () => <i className="fa-solid fa-network-wired"></i>
+export const DocumnetIcon = () => <FontAwesomeIcon icon={faFileLines} />
 
-export const SummaryIcon = () => <i className="fa-solid fa-chart-pie"></i>
+export const TopologyIcon = () => <FontAwesomeIcon icon={faImages} />
 
-export const NetworkTypeIcon = () => <i className="fa-solid fa-globe"></i>
+export const NetworkIcon = () => <FontAwesomeIcon icon={faNetworkWired} />
 
-export const IpAddressIcon = () => (
-	<i className="fa-solid fa-diagram-project"></i>
-)
+export const SummaryIcon = () => <FontAwesomeIcon icon={faChartPie} />
 
-export const TelIcon = () => <i className="fa-solid fa-phone"></i>
+export const NetworkTypeIcon = () => <FontAwesomeIcon icon={faGlobe} />
 
-export const DeviceIcon = () => <i className="fa-solid fa-desktop"></i>
+export const IpAddressIcon = () => <FontAwesomeIcon icon={faDiagramProject} />
 
-export const ComputerIcon = () => <i className="fa-solid fa-computer"></i>
+export const TelIcon = () => <FontAwesomeIcon icon={faPhone} />
 
-export const OfficeEquipmentIcon = () => <i className="fa-solid fa-print"></i>
+export const DeviceIcon = () => <FontAwesomeIcon icon={faDesktop} />
 
-export const NetworkDeviceIcon = () => (
-	<i className="fa-brands fa-battle-net"></i>
-)
+export const ComputerIcon = () => <FontAwesomeIcon icon={faComputer} />
 
-export const ServerIcon = () => <i className="fa-solid fa-server"></i>
+export const OfficeEquipmentIcon = () => <FontAwesomeIcon icon={faPrint} />
 
-export const UsbKeyIcon = () => <i className="fa-brands fa-usb"></i>
+export const NetworkDeviceIcon = () => <FontAwesomeIcon icon={faServer} />
 
-export const MessageIcon = () => <i className="fa-solid fa-message"></i>
+export const ServerIcon = () => <FontAwesomeIcon icon={faHardDrive} />
 
-export const TrashIcon = () => <i className="fa-solid fa-trash"></i>
+export const UsbKeyIcon = () => <FontAwesomeIcon icon={faUsb} />
 
-// export const UploadIcon = () => <i className="fa-solid fa-upload"></i>
+export const MessageIcon = () => <FontAwesomeIcon icon={faMessage} />
 
-export const DownloadIcon = () => <i className="fa-solid fa-download"></i>
+export const TrashIcon = () => <FontAwesomeIcon icon={faTrash} />
 
-export const SearchIcon = () => <i className="fa-solid fa-magnifying-glass"></i>
+// export const UploadIcon = () => <FontAwesomeIcon className="fa-solid fa-upload" />
 
-export const LeftArrowIcon = () => <i className="fa-solid fa-chevron-left"></i>
+export const DownloadIcon = () => <FontAwesomeIcon icon={faDownload} />
 
-export const RightArrowIcon = () => (
-	<i className="fa-solid fa-chevron-right"></i>
-)
+export const SearchIcon = () => <FontAwesomeIcon icon={faMagnifyingGlass} />
 
-export const DeviceBaseIcon = () => (
-	<i className="fa-solid fa-laptop-medical"></i>
-)
+export const LeftArrowIcon = () => <FontAwesomeIcon icon={faChevronLeft} />
 
-export const LinerIcon = () => <i className="fa-solid fa-cloud"></i>
+export const RightArrowIcon = () => <FontAwesomeIcon icon={faChevronRight} />
+
+export const DeviceBaseIcon = () => <FontAwesomeIcon icon={faLaptopMedical} />
+
+export const LinerIcon = () => <FontAwesomeIcon icon={faCloud} />

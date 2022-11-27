@@ -1,15 +1,19 @@
 import { notice } from '@/apis/mitt'
-import { DocumentInfoWithId } from '@/types/document'
 import { _fetch } from '@apis/fetch'
 import { SearchIcon } from '@assets/Icons'
 import { Button, IconButton, InputBase, Stack } from '@mui/material'
 import { Path } from '@path'
+import { setDocuments } from '@store/document'
+import { useAppDispatch, useAppSelector } from '@store/index'
 import ProfileCard from '@views/profile/ProfileCard'
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
 import { Link } from 'react-router-dom'
 
 const Document = () => {
-	const [documents, setDocuments] = useState<Array<DocumentInfoWithId>>([])
+	const documents = useAppSelector((state) => state.document)
+
+	const dispatch = useAppDispatch()
+	// const [documents, setDocuments] = useState<Array<DocumentInfoWithId>>([])
 
 	useEffect(() => {
 		const getDocuments = async () => {
@@ -19,7 +23,7 @@ const Document = () => {
 				const { success, data, errmsg } = find_document
 
 				return success
-					? setDocuments(data)
+					? dispatch(setDocuments(data))
 					: notice({
 							status: 'error',
 							message: errmsg,
