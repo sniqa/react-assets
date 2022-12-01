@@ -2,69 +2,64 @@ import { AddCircleOutlineIcon, AddIcon, DeleteIcon } from '@/assets/Icons'
 import Table from '@comps/table2/Table'
 import { useChildToParent } from '@hooks/common'
 import { Box, Button, IconButton, TextField, Tooltip } from '@mui/material'
-import { useAppDispatch, useAppSelector } from '@store/index'
 
 import DialogWraper from '@comps/DialogWraper'
-import { useEffect, useState } from 'react'
-
+import { memo, useEffect, useMemo, useState } from 'react'
+import { ChaseLoading } from '@comps/Loading'
 import { nanoid } from 'nanoid'
 
-import {
-  handleAddDepartment,
-  handleDeleteDepartment,
-  handlerUpdateDepartment,
-} from '@hooks/department'
+import { handleAddDepartment, handlerUpdateDepartment } from '@hooks/department'
 
 import { DepartmentInfo, DepartmentInfoWithId } from '@/types/department'
-import {
-  addDepartment,
-  deleteOneDepartment,
-  updateDepartment,
-} from '@store/department'
+
+import { _fetch } from '@apis/fetch'
+import { confirmbar, notice } from '@apis/mitt'
 
 const columns = [
   {
     accessorKey: 'department_name',
-    enableClickToCopy: true,
+    // enableClickToCopy: true,
     header: '部门',
     size: 160,
   },
   {
     accessorKey: 'locations',
-    enableClickToCopy: true,
+    // enableClickToCopy: true,
     header: '物理位置',
     size: 160,
   },
   {
     accessorKey: 'remark',
-    enableClickToCopy: true,
+    // enableClickToCopy: true,
     header: '备注',
     size: 150,
   },
 ]
 
 const Department = () => {
-  const departmentRows = useAppSelector((state) =>
-    state.department.map((d) => ({ ...d, locations: d.locations.join(' / ') }))
+  const [departmentInfo, setDepartmentInfo] = useState<DepartmentInfoWithId[]>(
+    []
   )
 
-  const [currentRow, setCurrentRow] = useState({})
+  const department = useMemo(
+    () =>
+      departmentInfo.map((d) => ({ ...d, locations: d.locations.join(' / ') })),
+    [departmentInfo]
+  )
+
+  const [currentRow, setCurrentRow] = useState<DepartmentInfoWithId | null>(
+    null
+  )
 
   const [tableLoading, setTableLoading] = useState(false)
 
-  const [openAddDialog, setOpenAddDialog] = useState(false)
+  const [openDialog, setOpenDialog] = useState(false)
 
-  const [openEditDialog, setOpenEditDialog] = useState(false)
-
-  const [addDepartmentChlid, addDepartmentParent] = useChildToParent()
-
-  const [updateDepartmentChlid, updateDepartmentParent] = useChildToParent()
-
-  const dispatch = useAppDispatch()
+  const [childHook, parentHook] = useChildToParent()
 
   // 新增
   const handleAddClick = async () => {
-    const res = addDepartmentParent()
+    const res = parentHook()
 
     setTableLoading(true)
 
@@ -72,31 +67,41 @@ const Department = () => {
 
     setTableLoading(false)
 
-    if (result) {
-      setOpenAddDialog(false)
+    setOpenDialog(false)
 
-      const { department } = result
-
-      dispatch(addDepartment({ ...res, ...department }))
-    }
+    setDepartmentInfo(result)
   }
 
   // 删除
   const handleDeleteClick = async (department: DepartmentInfoWithId) => {
+    const res = await confirmbar({
+      title: '提示',
+      message: '确定删除选中的项目？其他依赖此项的数据将会清空此项数据',
+    })
+
+    if (!res) {
+      return
+    }
+
     setTableLoading(true)
 
-    const res = await handleDeleteDepartment(department)
+    const [{ delete_department }, { find_departments }] = await _fetch([
+      {
+        delete_department: department,
+      },
+      {
+        find_departments: {},
+      },
+    ])
 
     setTableLoading(false)
 
-    if (res) {
-      dispatch(deleteOneDepartment(department._id))
-    }
+    delete_department.success && setDepartmentInfo(find_departments.data)
   }
 
   // 更新
   const handleEditClick = async () => {
-    const department = updateDepartmentParent()
+    const department = parentHook()
 
     setTableLoading(true)
 
@@ -105,10 +110,60 @@ const Department = () => {
     setTableLoading(false)
 
     if (res) {
-      setOpenEditDialog(false)
+      setOpenDialog(false)
 
-      dispatch(updateDepartment(department))
+      setDepartmentInfo(res)
     }
+  }
+
+  //删除所选
+  const handleDeleteSelection = async (ids: string[]) => {
+    setTableLoading(true)
+
+    const [{ delete_many_departments_by_id }, { find_departments }] =
+      await _fetch([
+        {
+          delete_many_departments_by_id: [ids],
+        },
+        { find_departments: {} },
+      ])
+
+    setTableLoading(false)
+
+    delete_many_departments_by_id.success
+      ? (setDepartmentInfo(find_departments.data),
+        notice({
+          status: 'success',
+          message: `成功删除${delete_many_departments_by_id.data}个用户`,
+        }))
+      : notice({
+          status: 'error',
+          message: `删除失败`,
+        })
+  }
+
+  // 获取数据
+  useEffect(() => {
+    const getDepartment = async () => {
+      setTableLoading(true)
+
+      const { find_departments } = await _fetch({ find_departments: {} })
+
+      setTableLoading(false)
+
+      find_departments.success && setDepartmentInfo(find_departments.data)
+    }
+
+    getDepartment()
+  }, [])
+
+  //   加载过程
+  if (tableLoading) {
+    return (
+      <div className="w-full h-full flex justify-center items-center">
+        <ChaseLoading />
+      </div>
+    )
   }
 
   return (
@@ -116,18 +171,18 @@ const Department = () => {
       <div className="h-12 px-4 text-2xl">{`部门`}</div>
 
       <Table
-        columns={columns}
-        rows={departmentRows}
+        columns={columns as any}
+        rows={department}
         enableRowActions
         isLoading={tableLoading}
-        initialState={{
-          columnVisibility: {
-            _id: false,
-          },
-        }}
+        deleteSelectRows={(rows) =>
+          handleDeleteSelection(rows.map((row) => row.original._id))
+        }
         renderCustomToolbar={
           <Tooltip title={'新增'}>
-            <IconButton onClick={() => setOpenAddDialog(true)}>
+            <IconButton
+              onClick={() => (setOpenDialog(true), setCurrentRow(null))}
+            >
               <AddIcon />
             </IconButton>
           </Tooltip>
@@ -136,9 +191,7 @@ const Department = () => {
           <Box sx={{ width: '8rem' }}>
             <Button
               size="small"
-              onClick={() => (
-                setOpenEditDialog(true), setCurrentRow(row.original)
-              )}
+              onClick={() => (setOpenDialog(true), setCurrentRow(row.original))}
             >{`编辑`}</Button>
             <Button
               className="inline-block"
@@ -150,24 +203,12 @@ const Department = () => {
       />
 
       <DialogWraper
-        open={openAddDialog}
-        onClose={() => (setOpenAddDialog(false), setTableLoading(false))}
-        title={'新增部门'}
-        onOk={handleAddClick}
+        open={openDialog}
+        onClose={() => setOpenDialog(false)}
+        title={currentRow ? '更新部门' : '新建部门'}
+        onOk={currentRow ? handleEditClick : handleAddClick}
       >
-        <DepartmentDetail getValue={addDepartmentChlid} />
-      </DialogWraper>
-
-      <DialogWraper
-        open={openEditDialog}
-        onClose={() => setOpenEditDialog(false)}
-        title={'更新部门'}
-        onOk={handleEditClick}
-      >
-        <DepartmentDetail
-          getValue={updateDepartmentChlid}
-          originDate={currentRow}
-        />
+        <DepartmentDetail getValue={childHook} originDate={currentRow} />
       </DialogWraper>
     </>
   )
@@ -180,68 +221,70 @@ interface DepartmentDetailProps {
   originDate?: any
 }
 
-const DepartmentDetail = ({
-  getValue = () => {},
-  originDate = {
-    department_name: '',
-    locations: '',
-    _id: '',
-    remark: '',
-  },
-}: DepartmentDetailProps) => {
-  const [departmentInfo, setDepartmentInfo] = useState(
-    originDate
-      ? {
-          ...originDate,
-          locations: originDate.locations.split(' / '),
-        }
-      : {}
-  )
+const DepartmentDetail = memo(
+  ({
+    getValue = () => {},
+    originDate = {
+      department_name: '',
+      locations: '',
+      _id: '',
+      remark: '',
+    },
+  }: DepartmentDetailProps) => {
+    const [departmentInfo, setDepartmentInfo] = useState(
+      originDate
+        ? {
+            ...originDate,
+            locations: originDate.locations.split(' / '),
+          }
+        : {}
+    )
 
-  getValue(() => departmentInfo)
+    getValue(() => departmentInfo)
 
-  return (
-    <div className="py-2">
-      <TextField
-        size="small"
-        label={`部门名称`}
-        value={departmentInfo.department_name || ''}
-        onChange={(e) => {
-          setDepartmentInfo({
-            ...departmentInfo,
-            department_name: e.target.value,
-          })
-        }}
-      />
+    return (
+      <div className="py-2">
+        <TextField
+          size="small"
+          label={`部门名称`}
+          value={departmentInfo.department_name || ''}
+          onChange={(e) => {
+            setDepartmentInfo({
+              ...departmentInfo,
+              department_name: e.target.value,
+            })
+          }}
+        />
 
-      <DynamicInput
-        label="物理位置"
-        value={departmentInfo.locations || ['']}
-        onChange={(val) => {
-          setDepartmentInfo({
-            ...departmentInfo,
-            locations: val,
-          })
-        }}
-      />
+        <DynamicInput
+          label="物理位置"
+          value={departmentInfo.locations || ['']}
+          onChange={(val: any) => {
+            setDepartmentInfo({
+              ...departmentInfo,
+              locations: val,
+            })
+          }}
+        />
 
-      <TextField
-        size="small"
-        className="w-56"
-        multiline
-        minRows={3}
-        label={`备注`}
-        value={departmentInfo.remark || ''}
-        onChange={(e) => {
-          setDepartmentInfo({
-            ...departmentInfo,
-            remark: e.target.value,
-          })
-        }}
-      />
-    </div>
-  )
-}
+        <TextField
+          size="small"
+          className="w-56"
+          multiline
+          minRows={3}
+          label={`备注`}
+          value={departmentInfo.remark || ''}
+          onChange={(e) => {
+            setDepartmentInfo({
+              ...departmentInfo,
+              remark: e.target.value,
+            })
+          }}
+        />
+      </div>
+    )
+  }
+)
 
 interface DynamicInputProps {
   label: string
@@ -249,7 +292,7 @@ interface DynamicInputProps {
   value?: string[]
 }
 
-const DynamicInput = (props: DynamicInputProps) => {
+const DynamicInput = memo((props: DynamicInputProps) => {
   const { label, onChange = () => {}, value = [''] } = props
 
   const [inputVals, setInputVals] = useState<Array<string>>(value)
@@ -309,7 +352,7 @@ const DynamicInput = (props: DynamicInputProps) => {
       ))}
     </div>
   )
-}
+})
 
 const createUuidString = (length: number) => {
   const temp: string[] = []

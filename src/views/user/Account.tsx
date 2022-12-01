@@ -2,17 +2,18 @@ import { AddIcon, UploadIcon } from '@/assets/Icons'
 import Table from '@comps/table2/Table'
 import { useChildToParent } from '@hooks/common'
 import {
-	Autocomplete,
-	Box,
-	Button,
-	IconButton,
-	TextField,
-	Tooltip,
+  Autocomplete,
+  Box,
+  Button,
+  CircularProgress,
+  IconButton,
+  TextField,
+  Tooltip,
 } from '@mui/material'
 import { useAppDispatch, useAppSelector } from '@store/index'
 
 import DialogWraper from '@comps/DialogWraper'
-import { useState } from 'react'
+import { memo, useCallback, useEffect, useState } from 'react'
 
 import { setIpAddress } from '@store/ipAddress'
 
@@ -23,286 +24,360 @@ import { DepartmentInfoWithId } from '@/types/department'
 import { NetworkTypeInfoWithId } from '@/types/networkType'
 
 import {
-	handleCreateUser,
-	handleDeleteUser,
-	handleModifyUser,
+  handleCreateUser,
+  handleDeleteUser,
+  handleModifyUser,
 } from '@hooks/user'
 
-import { UserInfoWithId } from '@/types/user'
+import { UserInfoWithId, UserInfo } from '@/types/user'
 
 import UploadDetail from '@comps/UploadDetail'
 
+import { Res, _fetch } from '@apis/fetch'
+import { confirmbar, notice } from '@apis/mitt'
+import { ChaseLoading } from '@comps/Loading'
+
 const columns = [
-	{
-		accessorKey: 'username',
-		enableClickToCopy: true,
-		header: '用户名称',
-		size: 160,
-	},
-	{
-		accessorKey: 'department',
-		enableClickToCopy: true,
-		header: '部门',
-		size: 160,
-	},
-	{
-		accessorKey: 'location',
-		enableClickToCopy: true,
-		header: '办公室',
-		size: 160,
-	},
-	{
-		accessorKey: 'number',
-		enableClickToCopy: true,
-		header: '编号',
-		size: 160,
-	},
-	{
-		accessorKey: 'remark',
-		enableClickToCopy: true,
-		header: '备注',
-		size: 150,
-	},
+  {
+    accessorKey: 'username',
+    header: '用户名称',
+    size: 160,
+  },
+  {
+    accessorKey: 'department',
+    header: '部门',
+    size: 160,
+  },
+  {
+    accessorKey: 'location',
+    header: '办公室',
+    size: 160,
+  },
+  {
+    accessorKey: 'number',
+    // enableClickToCopy: true,
+    header: '编号',
+    size: 160,
+  },
+  {
+    accessorKey: 'remark',
+    // enableClickToCopy: true,
+    header: '备注',
+    size: 150,
+  },
 ]
 
 const Account = () => {
-	const users = useAppSelector((state) => state.users)
+  const [users, setUsers] = useState<UserInfoWithId[]>([])
 
-	const departments = useAppSelector((state) => state.department)
+  const [departments, setDepartments] = useState<DepartmentInfoWithId[]>([])
 
-	const [currentRow, setCurrentRow] = useState<UserInfoWithId | null>(null)
+  const [currentRow, setCurrentRow] = useState<UserInfoWithId | null>(null)
 
-	const [openEditDialog, setOpenEditDialog] = useState(false)
+  const [openEditDialog, setOpenEditDialog] = useState(false)
 
-	const [openUploadDialog, setOpenUploadDialog] = useState(false)
+  const [openUploadDialog, setOpenUploadDialog] = useState(false)
 
-	const [childHook, parentHook] = useChildToParent()
+  const [childHook, parentHook] = useChildToParent()
 
-	const [tableLoading, setTableLoading] = useState(false)
+  const [tableLoading, setTableLoading] = useState(false)
 
-	const dispatch = useAppDispatch()
+  // 新增
+  const handleAddClick = useCallback(async () => {
+    const res = parentHook()
 
-	// 新增
-	const handleAddClick = async () => {
-		const res = parentHook()
+    setTableLoading(true)
 
-		setTableLoading(true)
+    setOpenEditDialog(false)
 
-		const result = await handleCreateUser(res)
+    const result = await handleCreateUser(res)
 
-		setTableLoading(false)
+    setTableLoading(false)
 
-		if (result) {
-			setOpenEditDialog(false)
+    result && setUsers([result, ...users])
+  }, [parentHook])
 
-			dispatch(addUser(result))
-		}
-	}
+  // 删除
+  const handleDeleteClick = useCallback(async (data: NetworkTypeInfoWithId) => {
+    const state = await confirmbar({
+      title: '提示',
+      message: `删除用户会删除该用户名下的所有资料`,
+    })
 
-	// 删除
-	const handleDeleteClick = async (data: NetworkTypeInfoWithId) => {
-		setTableLoading(true)
-		const res = await handleDeleteUser(data)
+    if (!state) {
+      return
+    }
 
-		setTableLoading(false)
-		if (res) {
-			const { ips, devices, target } = res
-			dispatch(setIpAddress(ips))
-			dispatch(setDevices(devices))
-			dispatch(deleteUser(target))
-		}
-	}
+    setTableLoading(true)
 
-	// 更新
-	const handleEditClick = async () => {
-		const res = parentHook()
+    const [{ delete_user }, { find_users }] = await _fetch([
+      { delete_user: data },
+      {
+        find_users: {},
+      },
+    ])
 
-		setTableLoading(true)
+    setTableLoading(false)
 
-		const result = await handleModifyUser(res)
+    if (delete_user) {
+      const { success, errmsg } = delete_user
 
-		setTableLoading(false)
+      return success
+        ? (notice({ status: 'success', message: `删除成功` }),
+          find_users.success && setUsers(find_users.data))
+        : notice({
+            status: 'error',
+            message: errmsg,
+          })
+    }
 
-		if (result) {
-			setOpenEditDialog(false)
+    return notice({
+      status: 'error',
+      message: '删除失败',
+    })
+  }, [])
 
-			const { ips, devices, newUser } = result
+  // 更新
+  const handleEditClick = useCallback(async () => {
+    const res = parentHook()
 
-			dispatch(setIpAddress(ips))
-			dispatch(setDevices(devices))
-			dispatch(updateUser(newUser))
-		}
-	}
+    setTableLoading(true)
 
-	return (
-		<>
-			<div className="h-12 px-4 text-2xl">{`用户`}</div>
+    const result = await handleModifyUser(res)
 
-			<Table
-				columns={columns}
-				rows={users}
-				enableRowActions
-				isLoading={tableLoading}
-				initialState={{
-					columnVisibility: {
-						_id: false,
-					},
-				}}
-				renderCustomToolbar={
-					<>
-						<Tooltip title={'上传'}>
-							<IconButton onClick={() => setOpenUploadDialog(true)}>
-								<UploadIcon />
-							</IconButton>
-						</Tooltip>
+    setTableLoading(false)
 
-						<Tooltip title={'新增'}>
-							<IconButton
-								onClick={() => (setOpenEditDialog(true), setCurrentRow(null))}
-							>
-								<AddIcon />
-							</IconButton>
-						</Tooltip>
-					</>
-				}
-				renderRowActions={({ cell, row, table }) => (
-					<Box sx={{ width: '8rem' }}>
-						<Button
-							size="small"
-							onClick={() => (
-								setOpenEditDialog(true), setCurrentRow(row.original)
-							)}
-						>{`编辑`}</Button>
-						<Button
-							className="inline-block"
-							size="small"
-							onClick={() => handleDeleteClick(row.original)}
-						>{`删除`}</Button>
-					</Box>
-				)}
-			/>
+    if (result) {
+      setOpenEditDialog(false)
 
-			{/* 新增用户
+      setUsers(result)
+    }
+  }, [parentHook])
+
+  //删除所选
+  const handleDeleteSelectUsers = useCallback(async (ids: string[]) => {
+    setTableLoading(true)
+
+    const res = await _fetch([
+      { delete_many_users_by_ids: [ids] },
+      { find_users: {} },
+    ])
+
+    setTableLoading(false)
+
+    const [{ delete_many_users_by_ids }, { find_users }] = res
+
+    delete_many_users_by_ids.success
+      ? (setUsers(find_users.data),
+        notice({
+          status: 'success',
+          message: `成功删除${delete_many_users_by_ids.data}个用户`,
+        }))
+      : notice({
+          status: 'error',
+          message: `删除失败`,
+        })
+  }, [])
+
+  //上传完成后
+  const onUploadComplete = useCallback(
+    (result: Res<{ insert: number; total: number; data: any[] }>) => {
+      setOpenUploadDialog(false)
+
+      const { success, data } = result
+
+      success &&
+        (notice({
+          status: `success`,
+          message: `共 ${data.total} 个, 上传成功 ${data.insert} 个`,
+        }),
+        setUsers(data.data))
+    },
+    []
+  )
+
+  //获取数据
+  useEffect(() => {
+    const getUsers = async () => {
+      setTableLoading(true)
+
+      const { find_users, find_departments } = await _fetch({
+        find_users: {},
+        find_departments: {},
+      })
+
+      setTableLoading(false)
+
+      find_users.success && setUsers(find_users.data)
+
+      find_departments.success && setDepartments(find_departments.data)
+    }
+
+    getUsers()
+  }, [])
+
+  //   加载过程
+  if (tableLoading) {
+    return (
+      <div className="w-full h-full flex justify-center items-center">
+        <ChaseLoading />
+      </div>
+    )
+  }
+
+  return (
+    <>
+      <div className="h-12 px-4 text-2xl">{`用户`}</div>
+
+      <Table
+        columns={columns as any}
+        rows={users}
+        enableRowActions
+        deleteSelectRows={(rows) =>
+          handleDeleteSelectUsers(rows.map((row) => row.original._id))
+        }
+        renderCustomToolbar={
+          <>
+            <Tooltip title={'上传'}>
+              <IconButton onClick={() => setOpenUploadDialog(true)}>
+                <UploadIcon />
+              </IconButton>
+            </Tooltip>
+
+            <Tooltip title={'新增'}>
+              <IconButton
+                onClick={() => (setOpenEditDialog(true), setCurrentRow(null))}
+              >
+                <AddIcon />
+              </IconButton>
+            </Tooltip>
+          </>
+        }
+        renderRowActions={({ cell, row, table }) => (
+          <Box sx={{ width: '8rem' }}>
+            <Button
+              size="small"
+              onClick={() => (
+                setOpenEditDialog(true), setCurrentRow(row.original)
+              )}
+            >{`编辑`}</Button>
+            <Button
+              className="inline-block"
+              size="small"
+              onClick={() => handleDeleteClick(row.original)}
+            >{`删除`}</Button>
+          </Box>
+        )}
+      />
+
+      {/* 编辑用户 */}
       <DialogWraper
-        open={openAddDialog}
-        onClose={() => setOpenAddDialog(false)}
-        title={``}
-        onOk={handleAddClick}
+        open={openEditDialog}
+        onClose={() => (setOpenEditDialog(false), setTableLoading(false))}
+        title={currentRow === null ? '新增用户' : '编辑用户'}
+        onOk={currentRow === null ? handleAddClick : handleEditClick}
       >
         <AccountDetail
           emitValue={childHook}
+          originData={currentRow}
           departmentSelection={departments}
         />
-      </DialogWraper> */}
+      </DialogWraper>
 
-			{/* 编辑用户 */}
-			<DialogWraper
-				open={openEditDialog}
-				onClose={() => (setOpenEditDialog(false), setTableLoading(false))}
-				title={currentRow === null ? '新增用户' : '编辑用户'}
-				onOk={currentRow === null ? handleAddClick : handleEditClick}
-			>
-				<AccountDetail
-					emitValue={childHook}
-					originData={currentRow}
-					departmentSelection={departments}
-				/>
-			</DialogWraper>
-
-			<UploadDetail
-				title="上传用户"
-				open={openUploadDialog}
-				onClose={() => setOpenUploadDialog(false)}
-				templateDownloadPath={'/用户模板.csv'}
-				uploadPath={'/upload/users'}
-				onComplete={(result) => console.log(result)}
-			/>
-		</>
-	)
+      <UploadDetail
+        title="上传用户"
+        open={openUploadDialog}
+        onClose={() => setOpenUploadDialog(false)}
+        templateDownloadPath={'/用户模板.csv'}
+        uploadPath={'/upload/users'}
+        onComplete={(result) => onUploadComplete(result)}
+      />
+    </>
+  )
 }
 
 export default Account
 
 interface AccountDetailProps {
-	emitValue: (cb: () => UserInfoWithId) => void
-	originData?: UserInfoWithId | null
-	departmentSelection?: DepartmentInfoWithId[]
+  emitValue: (cb: () => UserInfoWithId) => void
+  originData?: UserInfoWithId | null
+  departmentSelection?: DepartmentInfoWithId[]
 }
 
-const AccountDetail = ({
-	emitValue,
-	originData,
-	departmentSelection = [],
-}: AccountDetailProps) => {
-	const [accountDetail, setAccountDetail] = useState<UserInfoWithId>(
-		originData || {
-			_id: '',
-			username: '',
-			department: '',
-			location: '',
-			number: '',
-			remark: '',
-		}
-	)
+const AccountDetail = memo(
+  ({ emitValue, originData, departmentSelection = [] }: AccountDetailProps) => {
+    const [accountDetail, setAccountDetail] = useState<UserInfoWithId>(
+      originData || {
+        _id: '',
+        username: '',
+        department: '',
+        location: '',
+        number: '',
+        remark: '',
+      }
+    )
 
-	emitValue(() => accountDetail)
+    emitValue(() => accountDetail)
 
-	const handleOnChang = (val: string, key: string) => {
-		setAccountDetail({ ...accountDetail, [key]: val })
-	}
+    const handleOnChang = (val: string, key: string) => {
+      setAccountDetail({ ...accountDetail, [key]: val })
+    }
 
-	return (
-		<div className=" py-2 pl-2">
-			<div className={`flex flex-wrap items-center`}>
-				<TextField
-					size="small"
-					label={`用户名称`}
-					sx={{ width: '16rem', mr: '1rem', mb: '1rem' }}
-					defaultValue={originData?.username}
-					onChange={(e) =>
-						handleOnChang(e.currentTarget.value.trim(), 'username')
-					}
-				/>
-				<Autocomplete
-					sx={{ width: '16rem', mr: '1rem', mb: '1rem' }}
-					renderInput={(params) => (
-						<TextField label={`部门`} {...params} size="small" />
-					)}
-					onChange={(e, newValue) =>
-						setAccountDetail({ ...accountDetail, department: newValue || '' })
-					}
-					defaultValue={originData?.department || ''}
-					options={['', ...departmentSelection.map((d) => d.department_name)]}
-				/>
-				<Autocomplete
-					sx={{ width: '16rem', mr: '1rem', mb: '1rem' }}
-					renderInput={(params) => (
-						<TextField label={`办公室`} {...params} size="small" />
-					)}
-					defaultValue={originData?.location || ''}
-					onChange={(e, newValue) =>
-						setAccountDetail({ ...accountDetail, location: newValue || '' })
-					}
-					options={['', ...departmentSelection.flatMap((d) => d.locations)]}
-				/>
-				<TextField
-					size="small"
-					label={`编号`}
-					sx={{ width: '16rem', mr: '1rem', mb: '1rem' }}
-					onChange={(e) =>
-						handleOnChang(e.currentTarget.value.trim(), 'number')
-					}
-				/>
-			</div>
+    return (
+      <div className=" py-2 pl-2">
+        <div className={`flex flex-wrap items-center`}>
+          <TextField
+            size="small"
+            label={`用户名称`}
+            sx={{ width: '16rem', mr: '1rem', mb: '1rem' }}
+            defaultValue={originData?.username}
+            onChange={(e) =>
+              handleOnChang(e.currentTarget.value.trim(), 'username')
+            }
+          />
+          <Autocomplete
+            sx={{ width: '16rem', mr: '1rem', mb: '1rem' }}
+            renderInput={(params) => (
+              <TextField label={`部门`} {...params} size="small" />
+            )}
+            onChange={(e, newValue) =>
+              setAccountDetail({ ...accountDetail, department: newValue || '' })
+            }
+            defaultValue={originData?.department || ''}
+            options={['', ...departmentSelection.map((d) => d.department_name)]}
+          />
+          <Autocomplete
+            sx={{ width: '16rem', mr: '1rem', mb: '1rem' }}
+            renderInput={(params) => (
+              <TextField label={`办公室`} {...params} size="small" />
+            )}
+            defaultValue={originData?.location || ''}
+            onChange={(e, newValue) =>
+              setAccountDetail({ ...accountDetail, location: newValue || '' })
+            }
+            options={['', ...departmentSelection.flatMap((d) => d.locations)]}
+          />
+          <TextField
+            size="small"
+            label={`编号`}
+            sx={{ width: '16rem', mr: '1rem', mb: '1rem' }}
+            onChange={(e) =>
+              handleOnChang(e.currentTarget.value.trim(), 'number')
+            }
+          />
+        </div>
 
-			<TextField
-				size="small"
-				label={`备注`}
-				sx={{ width: '33rem', mr: '1rem', mb: '1rem' }}
-				onChange={(e) => handleOnChang(e.currentTarget.value.trim(), 'remark')}
-				multiline
-				minRows={3}
-			/>
-		</div>
-	)
-}
+        <TextField
+          size="small"
+          label={`备注`}
+          sx={{ width: '33rem', mr: '1rem', mb: '1rem' }}
+          onChange={(e) =>
+            handleOnChang(e.currentTarget.value.trim(), 'remark')
+          }
+          multiline
+          minRows={3}
+        />
+      </div>
+    )
+  }
+)

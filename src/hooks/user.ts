@@ -29,22 +29,18 @@ export const handleDeleteUser = async (userInfo: UserInfoWithId) => {
     return
   }
 
-  const [{ delete_user }, { find_ips }, { find_devices }] = await _fetch([
+  const [{ delete_user }, { find_users }] = await _fetch([
     { delete_user: userInfo },
-    { find_ips: {} },
-    { find_devices: {} },
+    {
+      find_users: {},
+    },
   ])
 
   if (delete_user) {
-    const { data, success, errmsg } = delete_user
+    const { success, errmsg } = delete_user
 
     return success
-      ? (notice({ status: 'success', message: `删除成功` }),
-        {
-          target: userInfo,
-          ips: find_ips.data,
-          devices: find_devices.data,
-        })
+      ? (notice({ status: 'success', message: `删除成功` }), find_users.data)
       : notice({
           status: 'error',
           message: errmsg,
@@ -59,10 +55,9 @@ export const handleDeleteUser = async (userInfo: UserInfoWithId) => {
 
 // 更新用户
 export const handleModifyUser = async (userInfo: UserInfoWithId) => {
-  const [{ modify_user }, { find_ips }, { find_devices }] = await _fetch([
+  const [{ modify_user }, { find_users }] = await _fetch([
     { modify_user: userInfo },
-    { find_ips: {} },
-    { find_devices: {} },
+    { find_users: {} },
   ])
 
   if (modify_user) {
@@ -73,11 +68,7 @@ export const handleModifyUser = async (userInfo: UserInfoWithId) => {
           status: 'success',
           message: '修改成功',
         }),
-        {
-          newUser: userInfo,
-          ips: find_ips.data,
-          devices: find_devices.data,
-        })
+        find_users.data)
       : notice({
           status: 'error',
           message: errmsg,

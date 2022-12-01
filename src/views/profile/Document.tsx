@@ -6,70 +6,107 @@ import { Path } from '@path'
 import { setDocuments } from '@store/document'
 import { useAppDispatch, useAppSelector } from '@store/index'
 import ProfileCard from '@views/profile/ProfileCard'
-import { useEffect } from 'react'
+import { useCallback, useEffect, useState } from 'react'
+import { ChaseLoading } from '@comps/Loading'
 import { Link } from 'react-router-dom'
+import { DocumentInfoWithId } from '@/types/document'
 
 const Document = () => {
-	const documents = useAppSelector((state) => state.document)
+  const [documents, setDocuments] = useState<DocumentInfoWithId[]>([])
 
-	const dispatch = useAppDispatch()
-	// const [documents, setDocuments] = useState<Array<DocumentInfoWithId>>([])
+  const [loading, setLoading] = useState(false)
 
-	useEffect(() => {
-		const getDocuments = async () => {
-			const { find_document } = await _fetch({ find_document: {} })
+  const [searchText, setSearchText] = useState('')
 
-			if (find_document) {
-				const { success, data, errmsg } = find_document
+  //  搜索
+  const handleSearchClick = useCallback(async () => {
+    setLoading(true)
 
-				return success
-					? dispatch(setDocuments(data))
-					: notice({
-							status: 'error',
-							message: errmsg,
-					  })
-			}
+    const { find_document_fuzzy } = await _fetch({
+      find_document_fuzzy: searchText,
+    })
 
-			return notice({
-				status: 'error',
-				message: `获取数据失败, 请检查网络或服务器`,
-			})
-		}
+    setLoading(true)
 
-		getDocuments()
-	}, [])
+    find_document_fuzzy.success
+      ? setDocuments(find_document_fuzzy.data)
+      : setDocuments([])
+  }, [searchText])
 
-	return (
-		<>
-			<div className="flex justify-between items-center border-b h-12  px-2">
-				<section>
-					<Link to={Path.DocumentCreate}>
-						<Button variant="contained">{`新建文档`}</Button>
-					</Link>
-				</section>
+  //   加载数据
+  useEffect(() => {
+    const getDocuments = async () => {
+      setLoading(true)
 
-				<section className="border rounded pl-2 flex items-center">
-					<InputBase size={`small`} type={`search`} placeholder={`搜索`} />
-					<IconButton size={`small`}>
-						<SearchIcon />
-					</IconButton>
-				</section>
-			</div>
+      const { find_document } = await _fetch({ find_document: {} })
 
-			<Stack flexWrap={`wrap`} className={``} direction="row">
-				{documents.map((document) => (
-					<ProfileCard
-						key={document._id}
-						to={document._id}
-						title={document.title}
-						description={document.description}
-						create_timestamp={document.create_timestamp}
-						last_modify_timestamp={document.last_modify_timestamp}
-					/>
-				))}
-			</Stack>
-		</>
-	)
+      setLoading(false)
+
+      if (find_document) {
+        const { success, data, errmsg } = find_document
+
+        return success
+          ? setDocuments(data)
+          : notice({
+              status: 'error',
+              message: errmsg,
+            })
+      }
+
+      return notice({
+        status: 'error',
+        message: `获取数据失败, 请检查网络或服务器`,
+      })
+    }
+
+    getDocuments()
+  }, [])
+
+  //   加载过程
+  if (loading) {
+    return (
+      <div className="w-full h-full flex justify-center items-center">
+        <ChaseLoading />
+      </div>
+    )
+  }
+
+  return (
+    <>
+      <div className="flex justify-between items-center border-b h-12  px-2">
+        <section>
+          <Link to={Path.DocumentCreate}>
+            <Button variant="contained">{`新建文档`}</Button>
+          </Link>
+        </section>
+
+        <section className="border rounded pl-2 flex items-center">
+          <InputBase
+            size={`small`}
+            type={`search`}
+            placeholder={`搜索`}
+            onChange={(e) => setSearchText(e.currentTarget.value.trim())}
+          />
+          <IconButton size={`small`} onClick={handleSearchClick}>
+            <SearchIcon />
+          </IconButton>
+        </section>
+      </div>
+
+      <Stack flexWrap={`wrap`} className={``} direction="row">
+        {documents.map((document) => (
+          <ProfileCard
+            key={document._id}
+            to={document._id}
+            title={document.title}
+            description={document.description}
+            create_timestamp={document.create_timestamp}
+            last_modify_timestamp={document.last_modify_timestamp}
+          />
+        ))}
+      </Stack>
+    </>
+  )
 }
 
 export default Document

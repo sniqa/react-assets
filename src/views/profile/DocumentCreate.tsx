@@ -11,121 +11,138 @@ import 'md-editor-rt/lib/style.css'
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
+import { ChaseLoading } from '@comps/Loading'
+
 const DocumentCreate = () => {
-	const [text, setText] = useState('')
+  const [text, setText] = useState('')
 
-	const [openDialog, setOpenDialog] = useState(false)
+  const [openDialog, setOpenDialog] = useState(false)
 
-	const [childHook, parentHook] = useChildToParent()
+  const [childHook, parentHook] = useChildToParent()
 
-	const navigate = useNavigate()
+  const navigate = useNavigate()
 
-	const handleSaveClick = async () => {
-		const value = parentHook()
+  const [loading, setLoading] = useState(false)
 
-		const document = {
-			...value,
-			content: text,
-			autor: '',
-		}
+  const handleSaveClick = async () => {
+    const value = parentHook()
 
-		const { create_document } = await _fetch({ create_document: document })
+    const document = {
+      ...value,
+      content: text,
+      autor: '',
+    }
 
-		if (create_document.success) {
-			navigate(`${Path.Document}/${create_document.data}`)
+    setLoading(true)
 
-			return notice({
-				status: 'success',
-				message: `保存成功`,
-			})
-		}
+    const { create_document } = await _fetch({ create_document: document })
 
-		notice({
-			status: 'error',
-			message: `保存失败`,
-		})
-	}
+    setLoading(false)
 
-	return (
-		<div className="h-full">
-			<div className="h-12 px-2 flex justify-between items-center">
-				<div className="flex items-center">
-					<ArrowBack />
-					<div className="text-xl ml-2 ">{`创建文档`}</div>
-				</div>
+    if (create_document.success) {
+      navigate(`${Path.Document}/${create_document.data}`)
 
-				<Button
-					variant="outlined"
-					onClick={() => setOpenDialog(true)}
-				>{`保存`}</Button>
-			</div>
+      return notice({
+        status: 'success',
+        message: `保存成功`,
+      })
+    }
 
-			<MdEditor
-				modelValue={text}
-				onChange={(modelValue) => setText(modelValue)}
-				className="h-full-important rounded-xl"
-				onUploadImg={async (
-					files: File[],
-					callback: (urls: string[]) => void
-				) => {
-					const res = await upload(
-						{ path: '/upload/static' },
-						{
-							file: files,
-						}
-					)
+    notice({
+      status: 'error',
+      message: `保存失败`,
+    })
+  }
 
-					res.data && callback(res.data)
-				}}
-			/>
+  //   加载过程
+  if (loading) {
+    return (
+      <div className="w-full h-full flex justify-center items-center">
+        <ChaseLoading />
+      </div>
+    )
+  }
 
-			<DialogWraper
-				title={'保存'}
-				open={openDialog}
-				onClose={() => setOpenDialog(false)}
-				onOk={handleSaveClick}
-			>
-				<DocumentDetail emitValue={childHook} />
-			</DialogWraper>
-		</div>
-	)
+  return (
+    <div className="h-full">
+      <div className="h-12 px-2 flex justify-between items-center">
+        <div className="flex items-center">
+          <ArrowBack />
+          <div className="text-xl ml-2 ">{`创建文档`}</div>
+        </div>
+
+        <Button
+          variant="outlined"
+          onClick={() => setOpenDialog(true)}
+        >{`保存`}</Button>
+      </div>
+
+      <MdEditor
+        modelValue={text}
+        onChange={(modelValue) => setText(modelValue)}
+        className="h-full-important rounded-xl"
+        onUploadImg={async (
+          files: File[],
+          callback: (urls: string[]) => void
+        ) => {
+          const res = await upload(
+            { path: '/upload/static' },
+            {
+              file: files,
+            }
+          )
+
+          res.data && callback(res.data)
+        }}
+      />
+
+      <DialogWraper
+        title={'保存'}
+        open={openDialog}
+        onClose={() => setOpenDialog(false)}
+        onOk={handleSaveClick}
+      >
+        <DocumentDetail emitValue={childHook} />
+      </DialogWraper>
+    </div>
+  )
 }
 
 export default DocumentCreate
 
 interface DocumentDetailProps {
-	emitValue: (cb: () => { title: string; description: string } | null) => void
+  emitValue: (cb: () => { title: string; description: string } | null) => void
 }
 
 const DocumentDetail = ({ emitValue }: DocumentDetailProps) => {
-	const [descript, setDescript] = useState({
-		title: '',
-		description: '',
-	})
+  const [descript, setDescript] = useState({
+    title: '',
+    description: '',
+  })
 
-	emitValue(() => descript)
+  emitValue(() => descript)
 
-	return (
-		<div className="flex flex-col py-2">
-			<TextField
-				size="small"
-				label={`标题`}
-				onChange={(e) =>
-					setDescript({ ...descript, title: e.currentTarget.value.trim() })
-				}
-				sx={{ width: '18rem', mb: '1rem' }}
-			/>
-			<TextField
-				label={`描述`}
-				multiline
-				minRows={3}
-				onChange={(e) =>
-					setDescript({
-						...descript,
-						description: e.currentTarget.value.trim(),
-					})
-				}
-			/>
-		</div>
-	)
+  return (
+    <div className="flex flex-col py-2">
+      <TextField
+        size="small"
+        label={`标题`}
+        onChange={(e) =>
+          setDescript({ ...descript, title: e.currentTarget.value.trim() })
+        }
+        sx={{ width: '18rem', mb: '1rem' }}
+      />
+      <TextField
+        label={`描述`}
+        multiline
+        minRows={3}
+        onChange={(e) =>
+          setDescript({
+            ...descript,
+            description: e.currentTarget.value.trim(),
+          })
+        }
+      />
+    </div>
+  )
 }

@@ -10,98 +10,112 @@ import MdEditor from 'md-editor-rt'
 import 'md-editor-rt/lib/style.css'
 import { useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
+import { ChaseLoading } from '@comps/Loading'
 
 const DocumentDetail = () => {
-	const { id } = useParams()
+  const { id } = useParams()
 
-	const [title, setTitle] = useState('')
+  const [title, setTitle] = useState('')
 
-	const dispatch = useAppDispatch()
+  const dispatch = useAppDispatch()
 
-	const [documentHistorys, setDocumenthistorys] = useState<
-		Array<DocumentHistoryInfoWithId>
-	>([])
+  const [documentHistorys, setDocumenthistorys] = useState<
+    Array<DocumentHistoryInfoWithId>
+  >([])
 
-	const [curVersionIndex, setCurVersionIndex] = useState(0)
+  const [curVersionIndex, setCurVersionIndex] = useState(0)
 
-	const [steps, setSteps] = useState([])
+  const [steps, setSteps] = useState([])
 
-	useEffect(() => {
-		const getDocument = async () => {
-			const { find_document_history_by_id, find_document_by_id } = await _fetch(
-				{
-					find_document_history_by_id: id,
-					find_document_by_id: id,
-				}
-			)
+  const [loading, setLoading] = useState(false)
 
-			console.log(find_document_by_id)
+  useEffect(() => {
+    const getDocument = async () => {
+      setLoading(true)
 
-			if (find_document_history_by_id) {
-				const { success, data, errmsg } = find_document_history_by_id
+      const { find_document_history_by_id, find_document_by_id } = await _fetch(
+        {
+          find_document_history_by_id: id,
+          find_document_by_id: id,
+        }
+      )
 
-				return success
-					? (setDocumenthistorys(data),
-					  setTitle(find_document_by_id.data.title),
-					  dispatch(setCurrentDocumentHistory(data[0])),
-					  setSteps(
-							data.map((d: DocumentHistoryInfoWithId) =>
-								new Date(d.timestamp).toLocaleString()
-							)
-					  ))
-					: notice({ status: 'error', message: errmsg })
-			}
+      setLoading(false)
 
-			notice({ status: 'error', message: `获取数据失败, 请检查网络或服务器` })
-		}
+      if (find_document_history_by_id) {
+        const { success, data, errmsg } = find_document_history_by_id
 
-		getDocument()
-	}, [])
+        return success
+          ? (setDocumenthistorys(data),
+            setTitle(find_document_by_id.data.title),
+            dispatch(setCurrentDocumentHistory(data[0])),
+            setSteps(
+              data.map((d: DocumentHistoryInfoWithId) =>
+                new Date(d.timestamp).toLocaleString()
+              )
+            ))
+          : notice({ status: 'error', message: errmsg })
+      }
 
-	return (
-		<div className="h-full flex flex-col">
-			<div className="h-24 px-2 flex justify-between items-center border-b">
-				<div className="flex items-center">
-					<ArrowBack />
+      notice({ status: 'error', message: `获取数据失败, 请检查网络或服务器` })
+    }
 
-					<div className="text-2xl ml-2">{title || ''}</div>
-				</div>
+    getDocument()
+  }, [])
 
-				<div className=" w-4/5 overflow-auto h-24 flex items-center justify-center">
-					<Stepper activeStep={curVersionIndex} nonLinear alternativeLabel>
-						{steps.map((label, index) => (
-							<Step key={index} completed={index === curVersionIndex}>
-								<StepButton
-									color="inherit"
-									sx={{ pb: 0 }}
-									onClick={() => {
-										setCurVersionIndex(index)
-										setCurrentDocumentHistory(documentHistorys[curVersionIndex])
-									}}
-								>
-									{label}
-								</StepButton>
-							</Step>
-						))}
-					</Stepper>
-				</div>
+  //   加载过程
+  if (loading) {
+    return (
+      <div className="w-full h-full flex justify-center items-center">
+        <ChaseLoading />
+      </div>
+    )
+  }
 
-				<Link
-					to={`${Path.DocumentUpdate}/${documentHistorys[curVersionIndex]?._id}`}
-				>
-					<Button variant="outlined">{`编辑`}</Button>
-				</Link>
-			</div>
+  return (
+    <div className="h-full flex flex-col">
+      <div className="h-24 px-2 flex justify-between items-center border-b">
+        <div className="flex items-center">
+          <ArrowBack />
 
-			<div className="h-full p-2 overflow-auto scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-200">
-				<MdEditor
-					modelValue={documentHistorys[curVersionIndex]?.content || ''}
-					className="h-full-important"
-					previewOnly
-				/>
-			</div>
-		</div>
-	)
+          <div className="text-2xl ml-2">{title || ''}</div>
+        </div>
+
+        <div className=" w-4/5 overflow-auto h-24 flex items-center justify-center">
+          <Stepper activeStep={curVersionIndex} nonLinear alternativeLabel>
+            {steps.map((label, index) => (
+              <Step key={index} completed={index === curVersionIndex}>
+                <StepButton
+                  color="inherit"
+                  sx={{ pb: 0 }}
+                  onClick={() => {
+                    setCurVersionIndex(index)
+                    setCurrentDocumentHistory(documentHistorys[curVersionIndex])
+                  }}
+                >
+                  {label}
+                </StepButton>
+              </Step>
+            ))}
+          </Stepper>
+        </div>
+
+        <Link
+          to={`${Path.DocumentUpdate}/${documentHistorys[curVersionIndex]?._id}`}
+        >
+          <Button variant="outlined">{`编辑`}</Button>
+        </Link>
+      </div>
+
+      <div className="h-full p-2 overflow-auto scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-200">
+        <MdEditor
+          modelValue={documentHistorys[curVersionIndex]?.content || ''}
+          className="h-full-important"
+          previewOnly
+        />
+      </div>
+    </div>
+  )
 }
 
 export default DocumentDetail
