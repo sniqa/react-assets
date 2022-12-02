@@ -4,7 +4,7 @@ import { Button, Dialog, Link, Typography } from '@mui/material'
 import { useCallback, useState, memo } from 'react'
 import { useDropzone } from 'react-dropzone'
 
-import { ChaseLoading } from '@comps/Loading'
+import { HamsterLoading } from '@comps/Loading'
 
 interface UploadDetailProps {
   open: boolean
@@ -73,7 +73,7 @@ const UploadDetail = ({
         >
           <input {...getInputProps()} />
 
-          {loading ? <ChaseLoading /> : <Button>{`点击或拖动上传`}</Button>}
+          {loading ? <HamsterLoading /> : <Button>{`点击或拖动上传`}</Button>}
         </div>
       </div>
 

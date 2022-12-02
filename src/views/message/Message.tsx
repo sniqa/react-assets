@@ -1,7 +1,11 @@
-import React from 'react'
+import Table from '@comps/table2/Table'
 
 const Message = () => {
-  return <div>Message</div>
+  return (
+    <>
+      <Table />
+    </>
+  )
 }
 
 export default Message

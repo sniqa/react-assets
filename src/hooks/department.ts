@@ -1,6 +1,6 @@
 import { DepartmentInfo, DepartmentInfoWithId } from '@/types/department'
 import { _fetch } from '@apis/fetch'
-import { confirmbar, notice } from '@apis/mitt'
+import { confirmbar, noticebar } from '@apis/mitt'
 
 // 增
 export const handleAddDepartment = async (val: Partial<DepartmentInfo>) => {
@@ -13,18 +13,18 @@ export const handleAddDepartment = async (val: Partial<DepartmentInfo>) => {
     const { success, data, errmsg } = create_department
 
     return success
-      ? (notice({
+      ? (noticebar({
           status: 'success',
           message: '创建成功',
         }),
         find_departments.data)
-      : notice({
+      : noticebar({
           status: 'error',
           message: errmsg,
         })
   }
 
-  return notice({
+  return noticebar({
     status: 'error',
     message: '创建失败',
   })
@@ -51,20 +51,20 @@ export const handleDeleteDepartment = async (
     const { success, data, errmsg } = delete_department
 
     return success
-      ? (notice({
+      ? (noticebar({
           status: 'success',
           message: '删除成功',
         }),
         {
           result: data,
         })
-      : notice({
+      : noticebar({
           status: 'error',
           message: errmsg,
         })
   }
 
-  return notice({
+  return noticebar({
     status: 'error',
     message: '删除失败',
   })
@@ -85,15 +85,15 @@ export const handlerUpdateDepartment = async (
     const { success, data, errmsg } = modify_department
 
     return success
-      ? (notice({ status: 'success', message: '修改成功' }),
+      ? (noticebar({ status: 'success', message: '修改成功' }),
         find_departments.data)
-      : notice({
+      : noticebar({
           status: 'error',
           message: errmsg,
         })
   }
 
-  return notice({
+  return noticebar({
     status: 'error',
     message: `更新失败`,
   })

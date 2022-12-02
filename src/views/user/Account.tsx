@@ -34,8 +34,8 @@ import { UserInfoWithId, UserInfo } from '@/types/user'
 import UploadDetail from '@comps/UploadDetail'
 
 import { Res, _fetch } from '@apis/fetch'
-import { confirmbar, notice } from '@apis/mitt'
-import { ChaseLoading } from '@comps/Loading'
+import { confirmbar, noticebar } from '@apis/mitt'
+import { HamsterLoading } from '@comps/Loading'
 
 const columns = [
   {
@@ -123,15 +123,15 @@ const Account = () => {
       const { success, errmsg } = delete_user
 
       return success
-        ? (notice({ status: 'success', message: `删除成功` }),
+        ? (noticebar({ status: 'success', message: `删除成功` }),
           find_users.success && setUsers(find_users.data))
-        : notice({
+        : noticebar({
             status: 'error',
             message: errmsg,
           })
     }
 
-    return notice({
+    return noticebar({
       status: 'error',
       message: '删除失败',
     })
@@ -169,11 +169,11 @@ const Account = () => {
 
     delete_many_users_by_ids.success
       ? (setUsers(find_users.data),
-        notice({
+        noticebar({
           status: 'success',
           message: `成功删除${delete_many_users_by_ids.data}个用户`,
         }))
-      : notice({
+      : noticebar({
           status: 'error',
           message: `删除失败`,
         })
@@ -187,7 +187,7 @@ const Account = () => {
       const { success, data } = result
 
       success &&
-        (notice({
+        (noticebar({
           status: `success`,
           message: `共 ${data.total} 个, 上传成功 ${data.insert} 个`,
         }),
@@ -218,11 +218,7 @@ const Account = () => {
 
   //   加载过程
   if (tableLoading) {
-    return (
-      <div className="w-full h-full flex justify-center items-center">
-        <ChaseLoading />
-      </div>
-    )
+    return <HamsterLoading />
   }
 
   return (

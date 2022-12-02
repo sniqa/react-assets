@@ -1,5 +1,5 @@
 import { WithId } from '@/types/common'
-import { notice } from '@apis/mitt'
+import { noticebar } from '@apis/mitt'
 import { MRT_ColumnDef } from 'material-react-table'
 
 const BOM = '\ufeff'
@@ -23,7 +23,7 @@ export const exportCSV = (
 
   createCsvFile(formatData, filename)
 
-  notice({
+  noticebar({
     status: 'success',
     message: '下载成功, 请稍后...',
   })

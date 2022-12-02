@@ -1,5 +1,5 @@
 import { _fetch } from '@apis/fetch'
-import { confirmbar, notice } from '@apis/mitt'
+import { confirmbar, noticebar } from '@apis/mitt'
 import { UserInfo, UserInfoWithId } from '@/types/user'
 
 // 创建用户
@@ -10,12 +10,12 @@ export const handleCreateUser = async (userInfo: UserInfo) => {
     const { success, data, errmsg } = create_user
 
     return success
-      ? (notice({ status: 'success', message: '创建用户成功' }),
+      ? (noticebar({ status: 'success', message: '创建用户成功' }),
         { ...userInfo, ...data } as UserInfoWithId)
-      : notice({ status: 'error', message: errmsg })
+      : noticebar({ status: 'error', message: errmsg })
   }
 
-  return notice({ status: 'error', message: `创建用户失败` })
+  return noticebar({ status: 'error', message: `创建用户失败` })
 }
 
 // 删除用户
@@ -40,14 +40,14 @@ export const handleDeleteUser = async (userInfo: UserInfoWithId) => {
     const { success, errmsg } = delete_user
 
     return success
-      ? (notice({ status: 'success', message: `删除成功` }), find_users.data)
-      : notice({
+      ? (noticebar({ status: 'success', message: `删除成功` }), find_users.data)
+      : noticebar({
           status: 'error',
           message: errmsg,
         })
   }
 
-  return notice({
+  return noticebar({
     status: 'error',
     message: '删除失败',
   })
@@ -64,18 +64,18 @@ export const handleModifyUser = async (userInfo: UserInfoWithId) => {
     const { success, data, errmsg } = modify_user
 
     return success
-      ? (notice({
+      ? (noticebar({
           status: 'success',
           message: '修改成功',
         }),
         find_users.data)
-      : notice({
+      : noticebar({
           status: 'error',
           message: errmsg,
         })
   }
 
-  return notice({
+  return noticebar({
     status: 'error',
     message: '修改用户失败',
   })

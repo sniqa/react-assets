@@ -1,39 +1,42 @@
 import ProfileCard from '@/views/profile/ProfileCard'
 import { SearchIcon } from '@assets/Icons'
-import { IconButton, InputBase, Stack } from '@mui/material'
+import { Button, IconButton, InputBase, Stack, Tooltip } from '@mui/material'
 import { Path } from '@path'
 import { Link } from 'react-router-dom'
+import { useState } from 'react'
 
 const Topology = () => {
-	return (
-		<>
-			<div className="flex justify-between items-center border-b h-12 shadow-md px-2">
-				<section>
-					<Link
-						to={Path.TopologyCreate}
-						className={`text-sm text-blue-600`}
-					>{`新建`}</Link>
-				</section>
+  const [searchText, setSearchText] = useState('')
 
-				<section className="border rounded pl-2 flex items-center">
-					<InputBase size={`small`} type={`search`} />
-					<IconButton size={`small`}>
-						<SearchIcon />
-					</IconButton>
-				</section>
-			</div>
+  return (
+    <>
+      <div className="flex justify-between items-center border-b h-12  px-2">
+        <section>
+          <Link to={Path.DocumentCreate}>
+            <Button variant="contained">{`新建文档`}</Button>
+          </Link>
+        </section>
 
-			<Stack flexWrap={`wrap`} className={``} direction="row">
-				<ProfileCard
-					to={'hello'}
-					title={'hello'}
-					description="实验室设备资产管理方案主要由UHF无源标签、有源智能感应标签、UHF固定式读写器、有源固定式读写器、桌面发卡器、PDA以及实验室管理系统等组成，实现实验室设备资产的出入库、使用、借调、折旧、维修、报废、盘点、定位等日常化智能管理。"
-					create_timestamp={0}
-					last_modify_timestamp={0}
-				/>
-			</Stack>
-		</>
-	)
+        <section className="border rounded px-1 flex items-center">
+          <InputBase
+            size={`small`}
+            type={`search`}
+            placeholder={`搜索`}
+            className={`mt-1`}
+            onChange={(e) => setSearchText(e.currentTarget.value.trim())}
+          />
+
+          <Tooltip title={`搜索`}>
+            <IconButton size={`small`}>
+              <SearchIcon />
+            </IconButton>
+          </Tooltip>
+        </section>
+      </div>
+
+      <Stack flexWrap={`wrap`} className={``} direction="row"></Stack>
+    </>
+  )
 }
 
 export default Topology

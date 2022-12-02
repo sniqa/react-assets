@@ -5,7 +5,7 @@ import { Box, Button, IconButton, TextField, Tooltip } from '@mui/material'
 
 import DialogWraper from '@comps/DialogWraper'
 import { memo, useEffect, useMemo, useState } from 'react'
-import { ChaseLoading } from '@comps/Loading'
+import { HamsterLoading } from '@comps/Loading'
 import { nanoid } from 'nanoid'
 
 import { handleAddDepartment, handlerUpdateDepartment } from '@hooks/department'
@@ -13,7 +13,7 @@ import { handleAddDepartment, handlerUpdateDepartment } from '@hooks/department'
 import { DepartmentInfo, DepartmentInfoWithId } from '@/types/department'
 
 import { _fetch } from '@apis/fetch'
-import { confirmbar, notice } from '@apis/mitt'
+import { confirmbar, noticebar } from '@apis/mitt'
 
 const columns = [
   {
@@ -132,11 +132,11 @@ const Department = () => {
 
     delete_many_departments_by_id.success
       ? (setDepartmentInfo(find_departments.data),
-        notice({
+        noticebar({
           status: 'success',
           message: `成功删除${delete_many_departments_by_id.data}个用户`,
         }))
-      : notice({
+      : noticebar({
           status: 'error',
           message: `删除失败`,
         })
@@ -159,11 +159,7 @@ const Department = () => {
 
   //   加载过程
   if (tableLoading) {
-    return (
-      <div className="w-full h-full flex justify-center items-center">
-        <ChaseLoading />
-      </div>
-    )
+    return <HamsterLoading />
   }
 
   return (

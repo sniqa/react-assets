@@ -1,5 +1,6 @@
 import { ReactNode, Suspense } from 'react'
 import { CircularProgress } from '@mui/material'
+import { HamsterLoading } from '@comps/Loading'
 
 interface LoadingProps {
   children: ReactNode
@@ -8,7 +9,7 @@ interface LoadingProps {
 const Loading = () => {
   return (
     <div className="h-full flex-grow flex justify-center items-center">
-      <CircularProgress />
+      <HamsterLoading />
     </div>
   )
 }

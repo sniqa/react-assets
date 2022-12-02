@@ -1,13 +1,11 @@
-import { notice } from '@/apis/mitt'
+import { noticebar } from '@/apis/mitt'
 import { _fetch } from '@apis/fetch'
 import { SearchIcon } from '@assets/Icons'
-import { Button, IconButton, InputBase, Stack } from '@mui/material'
+import { Button, IconButton, InputBase, Stack, Tooltip } from '@mui/material'
 import { Path } from '@path'
-import { setDocuments } from '@store/document'
-import { useAppDispatch, useAppSelector } from '@store/index'
 import ProfileCard from '@views/profile/ProfileCard'
 import { useCallback, useEffect, useState } from 'react'
-import { ChaseLoading } from '@comps/Loading'
+import { HamsterLoading } from '@comps/Loading'
 import { Link } from 'react-router-dom'
 import { DocumentInfoWithId } from '@/types/document'
 
@@ -47,13 +45,13 @@ const Document = () => {
 
         return success
           ? setDocuments(data)
-          : notice({
+          : noticebar({
               status: 'error',
               message: errmsg,
             })
       }
 
-      return notice({
+      return noticebar({
         status: 'error',
         message: `获取数据失败, 请检查网络或服务器`,
       })
@@ -64,11 +62,7 @@ const Document = () => {
 
   //   加载过程
   if (loading) {
-    return (
-      <div className="w-full h-full flex justify-center items-center">
-        <ChaseLoading />
-      </div>
-    )
+    return <HamsterLoading />
   }
 
   return (
@@ -80,16 +74,20 @@ const Document = () => {
           </Link>
         </section>
 
-        <section className="border rounded pl-2 flex items-center">
+        <section className="border rounded px-1 flex items-center">
           <InputBase
             size={`small`}
             type={`search`}
             placeholder={`搜索`}
+            className={`mt-1`}
             onChange={(e) => setSearchText(e.currentTarget.value.trim())}
           />
-          <IconButton size={`small`} onClick={handleSearchClick}>
-            <SearchIcon />
-          </IconButton>
+
+          <Tooltip title={`搜索`}>
+            <IconButton size={`small`}>
+              <SearchIcon />
+            </IconButton>
+          </Tooltip>
         </section>
       </div>
 

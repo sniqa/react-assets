@@ -1,6 +1,6 @@
 import { useChildToParent } from '@/hooks/common'
 import { _fetch } from '@apis/fetch'
-import { notice } from '@apis/mitt'
+import { noticebar } from '@apis/mitt'
 import { upload } from '@apis/upload'
 import ArrowBack from '@comps/ArrowBack'
 import DialogWraper from '@comps/DialogWraper'
@@ -11,7 +11,7 @@ import 'md-editor-rt/lib/style.css'
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
-import { ChaseLoading } from '@comps/Loading'
+import { HamsterLoading } from '@comps/Loading'
 
 const DocumentCreate = () => {
   const [text, setText] = useState('')
@@ -42,13 +42,13 @@ const DocumentCreate = () => {
     if (create_document.success) {
       navigate(`${Path.Document}/${create_document.data}`)
 
-      return notice({
+      return noticebar({
         status: 'success',
         message: `保存成功`,
       })
     }
 
-    notice({
+    noticebar({
       status: 'error',
       message: `保存失败`,
     })
@@ -56,11 +56,7 @@ const DocumentCreate = () => {
 
   //   加载过程
   if (loading) {
-    return (
-      <div className="w-full h-full flex justify-center items-center">
-        <ChaseLoading />
-      </div>
-    )
+    return <HamsterLoading />
   }
 
   return (

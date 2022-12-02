@@ -1,6 +1,6 @@
 import { DocumentHistoryInfo } from '@/types/document'
 import { _fetch } from '@apis/fetch'
-import { notice } from '@apis/mitt'
+import { noticebar } from '@apis/mitt'
 import { upload } from '@apis/upload'
 import ArrowBack from '@comps/ArrowBack'
 import { Button } from '@mui/material'
@@ -10,7 +10,7 @@ import MdEditor from 'md-editor-rt'
 import 'md-editor-rt/lib/style.css'
 import { useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
-import { ChaseLoading } from '@comps/Loading'
+import { HamsterLoading } from '@comps/Loading'
 
 const DocumentModify = () => {
   const history = useAppSelector((state) => state.documentHistory)
@@ -40,18 +40,18 @@ const DocumentModify = () => {
       const { success, data, errmsg } = create_document_history
 
       return success
-        ? (notice({
+        ? (noticebar({
             status: 'success',
             message: `更新文档成功`,
           }),
           navigate(`${Path.Document}/${history.document_id}`))
-        : notice({
+        : noticebar({
             status: 'error',
             message: errmsg,
           })
     }
 
-    notice({
+    noticebar({
       status: 'error',
       message: `更新文档失败`,
     })
@@ -59,11 +59,7 @@ const DocumentModify = () => {
 
   //   加载过程
   if (loading) {
-    return (
-      <div className="w-full h-full flex justify-center items-center">
-        <ChaseLoading />
-      </div>
-    )
+    return <HamsterLoading />
   }
 
   return (

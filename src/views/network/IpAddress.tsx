@@ -1,5 +1,11 @@
+import { _fetch } from '@apis/fetch'
+import { HamsterLoading } from '@/components/Loading'
+import { DeviceInfoWithId } from '@/types/device'
+import { DeviceBaseInfoWithId } from '@/types/deviceBase'
+import { IpAddressInfoWithId } from '@/types/ipAddress'
 import Table, { MRT_ColumnDef } from '@comps/table2/Table'
 import { useAppSelector } from '@store/index'
+import { useEffect, useMemo, useState } from 'react'
 
 const columns: MRT_ColumnDef<any>[] = [
   {
@@ -9,7 +15,7 @@ const columns: MRT_ColumnDef<any>[] = [
     size: 160,
   },
   {
-    accessorKey: 'username',
+    accessorKey: 'user',
     // enableClickToCopy: true,
     header: '使用人',
     size: 160,
@@ -53,30 +59,61 @@ const columns: MRT_ColumnDef<any>[] = [
 ]
 
 const IpAddress = () => {
-  const deviceBases = useAppSelector((state) => state.deviceBase)
-  const devices = useAppSelector((state) => state.devices)
+  const [deviceBases, setDeviceBase] = useState<DeviceBaseInfoWithId[]>([])
+  const [devices, setDevices] = useState<DeviceInfoWithId[]>([])
+  const [ipAddressRows, setIpAddress] = useState<IpAddressInfoWithId[]>([])
 
-  const ipAddressRows = useAppSelector((state) =>
-    state.ipAddress.map((ip) => ({
-      ...ip,
-      device_kind:
-        deviceBases.find(
-          (db) =>
-            db.device_model ===
-            devices.find(
-              (device) =>
-                device.ip_address === ip.ip_address &&
-                device.network_type === ip.network_type
-            )?.device_model
-        )?.device_kind || '',
-      is_used: ip.is_used ? '已使用' : '未使用',
-    }))
+  const [loading, setLoading] = useState(false)
+
+  const ipAddressArray = useMemo(
+    () =>
+      ipAddressRows.map((ip) => ({
+        ...ip,
+        device_kind:
+          deviceBases.find(
+            (db) =>
+              db.device_model ===
+              devices.find(
+                (device) =>
+                  device.ip_address === ip.ip_address &&
+                  device.network_type === ip.network_type
+              )?.device_model
+          )?.device_kind || '',
+        is_used: ip.is_used ? '已使用' : '未使用',
+      })),
+    [ipAddressRows]
   )
+
+  useEffect(() => {
+    const getIps = async () => {
+      setLoading(true)
+
+      const { find_devices, find_device_base, find_ips } = await _fetch({
+        find_devices: {},
+        find_device_base: {},
+        find_ips: {},
+      })
+
+      setLoading(false)
+
+      find_devices.success && setDevices(find_devices.data)
+
+      find_device_base.success && setDeviceBase(find_device_base.data)
+
+      find_ips.success && setIpAddress(find_ips.data)
+    }
+
+    getIps()
+  }, [])
+
+  if (loading) {
+    return <HamsterLoading />
+  }
 
   return (
     <>
       <div className="h-12 px-4 text-2xl">{`IP地址`}</div>
-      <Table columns={columns} rows={ipAddressRows} />
+      <Table columns={columns as any} rows={ipAddressArray} />
     </>
   )
 }

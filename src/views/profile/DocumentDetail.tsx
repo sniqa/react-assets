@@ -1,6 +1,6 @@
 import { DocumentHistoryInfoWithId } from '@/types/document'
 import { _fetch } from '@apis/fetch'
-import { notice } from '@apis/mitt'
+import { noticebar } from '@apis/mitt'
 import ArrowBack from '@comps/ArrowBack'
 import { Button, Step, StepButton, Stepper } from '@mui/material'
 import { Path } from '@path'
@@ -10,7 +10,7 @@ import MdEditor from 'md-editor-rt'
 import 'md-editor-rt/lib/style.css'
 import { useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
-import { ChaseLoading } from '@comps/Loading'
+import { HamsterLoading } from '@comps/Loading'
 
 const DocumentDetail = () => {
   const { id } = useParams()
@@ -29,6 +29,7 @@ const DocumentDetail = () => {
 
   const [loading, setLoading] = useState(false)
 
+  // 获取数据
   useEffect(() => {
     const getDocument = async () => {
       setLoading(true)
@@ -54,10 +55,13 @@ const DocumentDetail = () => {
                 new Date(d.timestamp).toLocaleString()
               )
             ))
-          : notice({ status: 'error', message: errmsg })
+          : noticebar({ status: 'error', message: errmsg })
       }
 
-      notice({ status: 'error', message: `获取数据失败, 请检查网络或服务器` })
+      noticebar({
+        status: 'error',
+        message: `获取数据失败, 请检查网络或服务器`,
+      })
     }
 
     getDocument()
@@ -65,11 +69,7 @@ const DocumentDetail = () => {
 
   //   加载过程
   if (loading) {
-    return (
-      <div className="w-full h-full flex justify-center items-center">
-        <ChaseLoading />
-      </div>
-    )
+    return <HamsterLoading />
   }
 
   return (
@@ -82,7 +82,12 @@ const DocumentDetail = () => {
         </div>
 
         <div className=" w-4/5 overflow-auto h-24 flex items-center justify-center">
-          <Stepper activeStep={curVersionIndex} nonLinear alternativeLabel>
+          <Stepper
+            activeStep={curVersionIndex}
+            nonLinear
+            alternativeLabel
+            sx={{ fontSize: '0.8rem' }}
+          >
             {steps.map((label, index) => (
               <Step key={index} completed={index === curVersionIndex}>
                 <StepButton
@@ -93,7 +98,7 @@ const DocumentDetail = () => {
                     setCurrentDocumentHistory(documentHistorys[curVersionIndex])
                   }}
                 >
-                  {label}
+                  <div className="text-sm"> {label}</div>
                 </StepButton>
               </Step>
             ))}

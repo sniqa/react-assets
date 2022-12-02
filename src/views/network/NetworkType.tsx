@@ -5,7 +5,7 @@ import { Box, Button, IconButton, TextField, Tooltip } from '@mui/material'
 import { useAppDispatch, useAppSelector } from '@store/index'
 
 import DialogWraper from '@comps/DialogWraper'
-import { useState } from 'react'
+import { memo, useCallback, useEffect, useMemo, useState } from 'react'
 
 import { setIpAddress } from '@store/ipAddress'
 
@@ -14,10 +14,11 @@ import { addNetworkType, deleteNetworkTypes } from '@store/networkType'
 
 import { NetworkTypeInfo, NetworkTypeInfoWithId } from '@/types/networkType'
 
-import {
-  handleAddNetworkType,
-  handleDeleteNetworkType,
-} from '@hooks/networkType'
+import { handleAddNetworkType } from '@hooks/networkType'
+
+import { HamsterLoading } from '@comps/Loading'
+import { _fetch } from '@/apis/fetch'
+import { confirmbar, noticebar } from '@apis/mitt'
 
 const columns = [
   {
@@ -77,60 +78,91 @@ const columns = [
 ]
 
 const NetworkType = () => {
-  const networkTypes = useAppSelector((state) =>
-    state.networkTypes.map((networkType) => {
-      const { unused_number, used_number, total_number, ...res } = networkType
+  const [loading, setLoading] = useState(false)
 
-      return {
-        ...res,
-        ip_use_detail: [used_number, unused_number, total_number].join(' / '),
-      }
-    })
+  const [networkTypesOrigin, setNetworkTypesOrigin] = useState<
+    NetworkTypeInfoWithId[]
+  >([])
+
+  const networkTypes = useMemo(
+    () =>
+      networkTypesOrigin.map((networkType) => {
+        const { unused_number, used_number, total_number, ...res } = networkType
+
+        setLoading(false)
+
+        return {
+          ...res,
+          ip_use_detail: [used_number, unused_number, total_number].join(' / '),
+        }
+      }),
+
+    [networkTypesOrigin]
   )
 
-  const [isLoading, setIsLoading] = useState(false)
-
-  const [openAddDialog, setOpenAddDialog] = useState(false)
+  const [openDialog, setOpenDialog] = useState(false)
 
   const [childHook, parentHook] = useChildToParent()
 
-  const dispatch = useAppDispatch()
-
   // 新增
-  const handleAddClick = async () => {
+  const handleAddClick = useCallback(async () => {
     const res = parentHook()
 
-    setIsLoading(true)
+    setLoading(true)
 
     const result = await handleAddNetworkType(res)
 
+    setOpenDialog(false)
+
     if (result) {
-      setIsLoading(false)
-
-      setOpenAddDialog(false)
-
-      const { ips, devices, targetNetworkType } = result
-
-      dispatch(setIpAddress(ips))
-      dispatch(setDevices(devices))
-      dispatch(addNetworkType(targetNetworkType))
+      setNetworkTypesOrigin(result.data)
     }
-  }
+  }, [parentHook])
 
   // 删除
-  const handleDeleteClick = async (data: NetworkTypeInfoWithId) => {
-    setIsLoading(true)
+  const handleDeleteClick = useCallback(async (data: NetworkTypeInfoWithId) => {
+    const res = await confirmbar({
+      title: '提示',
+      message: '删除此信息会同步删除与此有关的全部资料',
+    })
 
-    const res = await handleDeleteNetworkType(data)
-
-    if (res) {
-      setIsLoading(false)
-
-      const { ips, devices, targetNetworkType } = res
-      dispatch(setIpAddress(ips))
-      dispatch(setDevices(devices))
-      dispatch(deleteNetworkTypes(targetNetworkType))
+    if (!res) {
+      return
     }
+
+    setLoading(true)
+
+    const [{ delete_network_type }, { find_network_types }] = await _fetch([
+      { delete_network_type: data },
+      { find_network_types: {} },
+    ])
+
+    setLoading(false)
+
+    delete_network_type.success
+      ? (noticebar({ status: 'success', message: `删除成功` }),
+        setNetworkTypesOrigin(find_network_types.data))
+      : noticebar({
+          status: 'error',
+          message: delete_network_type.errmsg,
+        })
+  }, [])
+
+  // 获取数据
+  useEffect(() => {
+    const getNetworkTypes = async () => {
+      const { find_network_types } = await _fetch({ find_network_types: {} })
+
+      find_network_types.success &&
+        setNetworkTypesOrigin(find_network_types.data)
+    }
+
+    getNetworkTypes()
+  }, [])
+
+  //加载过程
+  if (loading) {
+    return <HamsterLoading />
   }
 
   return (
@@ -138,13 +170,12 @@ const NetworkType = () => {
       <div className="h-12 px-4 text-2xl">{`网络类型`}</div>
 
       <Table
-        columns={columns}
+        columns={columns as any}
         rows={networkTypes}
-        isLoading={isLoading}
         enableRowActions
         renderCustomToolbar={
           <Tooltip title={'新增'}>
-            <IconButton onClick={() => setOpenAddDialog(true)}>
+            <IconButton onClick={() => setOpenDialog(true)}>
               <AddIcon />
             </IconButton>
           </Tooltip>
@@ -167,8 +198,8 @@ const NetworkType = () => {
       />
 
       <DialogWraper
-        open={openAddDialog}
-        onClose={() => (setOpenAddDialog(false), setIsLoading(false))}
+        open={openDialog}
+        onClose={() => (setOpenDialog(false), setLoading(false))}
         title={'新增网络类型'}
         onOk={handleAddClick}
       >
@@ -184,7 +215,7 @@ interface NetworkTypeDetailProps {
   getValue: (data: () => NetworkTypeInfo) => void
 }
 
-const NetworkTypeDetail = ({ getValue }: NetworkTypeDetailProps) => {
+const NetworkTypeDetail = memo(({ getValue }: NetworkTypeDetailProps) => {
   const [networkTypeDetail, setNetworkTypeDetail] = useState<NetworkTypeInfo>({
     network_type: '',
     network_alias: '',
@@ -271,4 +302,4 @@ const NetworkTypeDetail = ({ getValue }: NetworkTypeDetailProps) => {
       />
     </div>
   )
-}
+})

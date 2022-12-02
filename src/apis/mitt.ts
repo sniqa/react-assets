@@ -26,7 +26,7 @@ type MittEvents = {
 
 export const emitter: Emitter<MittEvents> = mitt<MittEvents>()
 
-export const notice = (state: NoticebarStatus) => {
+export const noticebar = (state: NoticebarStatus) => {
   emitter.emit('notice', state)
 }
 
