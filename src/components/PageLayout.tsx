@@ -19,7 +19,7 @@ const PageLayout = (props: PageLayoutProps) => {
 			<aside className={`w-1/6 inline-block box-border`}>{leftAside}</aside>
 
 			<main className="inline-block w-full h-screen box-border overflow-auto px-4 scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-200">
-				<div className="main-content w-full box-border p-2">{children}</div>
+				<div className="h-full w-full box-border p-2">{children}</div>
 			</main>
 
 			{rightAside && <aside className={`inline-block box-border`}></aside>}

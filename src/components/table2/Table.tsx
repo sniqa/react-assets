@@ -38,22 +38,23 @@ export type Employee = {
 
 export type { MRT_ColumnDef, MRT_Row, MRT_TableInstance }
 
-export interface CustomTableProps {
-  columns: MRT_ColumnDef<WithId>[]
+type ColumnType = Record<string, any> & WithId
+
+export interface CustomTableProps<T extends ColumnType> {
+  columns: MRT_ColumnDef<T>[]
   rows: any[]
-  renderRowActions?: ({
+  renderRowActions: ({
     cell,
     row,
     table,
   }: {
-    cell: MRT_Cell<never>
-    row: MRT_Row<never>
-    table: MRT_TableInstance<WithId>
+    cell: MRT_Cell<T>
+    row: MRT_Row<T>
+    table: MRT_TableInstance<T>
   }) => ReactNode
   renderCustomToolbar?: ReactNode
-  deleteSelectRows?: (rows: MRT_Row<WithId>[]) => void
-  isLoading?: boolean
-  initialState?: Partial<MRT_TableState<never>>
+  deleteSelectRows?: (rows: MRT_Row<T>[]) => void
+  initialState?: Partial<MRT_TableState<T>>
   rowActionsSize?: number
   enableRowActions?: boolean
   tableContainerHeight?: string
@@ -69,21 +70,25 @@ const CustomTable = ({
   renderRowActions,
   deleteSelectRows = () => {},
   renderCustomToolbar,
-  isLoading = false,
   initialState,
   rowActionsSize = 100,
   enableRowActions = false,
   tableContainerHeight = 'calc(100vh - 12rem)',
-}: CustomTableProps) => {
-  const virtualizerInstanceRef = useRef<Virtualizer>(null)
+}: CustomTableProps<any>) => {
+  const [isLoading, setIsLoading] = useState(true);
 
-  // const [data, setData] = useState(rows)
+
+  const [data, setData] = useState<any[]>([]);
 
   const [sorting, setSorting] = useState<SortingState>([])
 
-  // useEffect(() => {
-  //   setData(rows)
-  // }, [rows])
+  const virtualizerInstanceRef = useRef<Virtualizer>(null)
+
+
+  useEffect(() => {
+    setData(rows) 
+    setIsLoading(false);
+  }, [])
 
   useEffect(() => {
     if (virtualizerInstanceRef.current) {
@@ -93,8 +98,8 @@ const CustomTable = ({
 
   return (
     <MaterialReactTable
-      columns={columns as any}
-      data={rows as any}
+      columns={columns}
+      data={data}
       enableColumnFilterModes
       enableColumnOrdering
       enableGrouping

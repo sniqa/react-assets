@@ -149,7 +149,6 @@ const DeviceBase = () => {
 
 			<Table
 				columns={columns}
-				isLoading={isLoading}
 				rows={deviceBaseRows}
 				tableContainerHeight="calc(100vh - 15rem)"
 				enableRowActions

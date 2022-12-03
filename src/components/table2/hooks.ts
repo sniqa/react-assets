@@ -5,9 +5,11 @@ import { MRT_ColumnDef } from 'material-react-table'
 const BOM = '\ufeff'
 const EOL = '\r\n'
 
+type ColumnType = Record<string, any> & WithId
+
 // 导出
-export const exportCSV = (
-  columns: MRT_ColumnDef<WithId>[],
+export const exportCSV = <T extends ColumnType>(
+  columns: MRT_ColumnDef<T>[],
   rows: any[],
   filename = new Date().getTime().toString()
 ) => {

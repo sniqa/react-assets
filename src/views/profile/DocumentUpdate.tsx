@@ -63,7 +63,7 @@ const DocumentModify = () => {
   }
 
   return (
-    <div className="h-full flex flex-col">
+    <div className="h-full flex flex-col border">
       <div className="h-16 px-2 flex justify-between items-center border-b">
         <div className="flex items-center">
           <ArrowBack />
@@ -87,10 +87,11 @@ const DocumentModify = () => {
         </div>
       </div>
 
-      <div className="h-full p-2 overflow-auto scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-200">
+      <div className="h-full p-2 overflow-auto scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-200 border  ">
         <MdEditor
           modelValue={text || ''}
           className="h-full-important"
+          previewTheme={'github'}
           onChange={(modelValue) => setText(modelValue)}
           onUploadImg={async (
             files: File[],

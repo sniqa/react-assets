@@ -76,6 +76,7 @@ const DocumentCreate = () => {
       <MdEditor
         modelValue={text}
         onChange={(modelValue) => setText(modelValue)}
+        previewTheme={'github'}
         className="h-full-important rounded-xl"
         onUploadImg={async (
           files: File[],

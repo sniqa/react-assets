@@ -385,6 +385,7 @@ const Devices = ({ title, deviceCategory }: DevicesProps) => {
         renderRowActions={({ cell, row, table }) => (
           <Box sx={{ width: '8rem', fontSize: '12px' }}>
             <CustomButton
+            className='text-sm'
               onClick={() => (
                 setOpenDialog(true), setCurrentRow(row.original as any)
               )}

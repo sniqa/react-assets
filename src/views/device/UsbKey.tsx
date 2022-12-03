@@ -197,7 +197,6 @@ const UsbKey = () => {
 			<Table
 				columns={columns}
 				rows={rows}
-				isLoading={isLoading}
 				renderCustomToolbar={
 					<Tooltip title={'新增'}>
 						<IconButton

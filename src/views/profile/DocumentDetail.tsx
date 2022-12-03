@@ -112,11 +112,12 @@ const DocumentDetail = () => {
         </Link>
       </div>
 
-      <div className="h-full p-2 overflow-auto scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-200">
+      <div className="h-full p-2 overflow-auto scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-200 border">
         <MdEditor
           modelValue={documentHistorys[curVersionIndex]?.content || ''}
           className="h-full-important"
           previewOnly
+          previewTheme={'github'}
         />
       </div>
     </div>
