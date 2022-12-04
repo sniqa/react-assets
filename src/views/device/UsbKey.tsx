@@ -14,7 +14,7 @@ import {
 } from '@mui/material'
 import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
-import { useEffect, useState } from 'react'
+import { Suspense, useState } from 'react'
 
 import { _fetch } from '@apis/fetch'
 import {
@@ -24,6 +24,8 @@ import {
 } from '@hooks/usbKey'
 import { useAppSelector } from '@store/index'
 
+import { HamsterLoading } from '@comps/Loading'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import dayjs from 'dayjs'
 import zhcn from 'dayjs/locale/zh-cn'
 
@@ -80,123 +82,113 @@ const columns = [
 	},
 ]
 
+// 获取
+const getUsbKeys = async () => {
+	const { find_usb_key } = await _fetch({ find_usb_key: {} })
+
+	const { success, data } = find_usb_key
+
+	return success
+		? data.map((d: UsbKeyInfoWithId) => ({
+				...d,
+				enable_time: new Date(d.enable_time).toLocaleDateString(),
+				collection_time: new Date(d.collection_time).toLocaleDateString(),
+				return_time: new Date(d.return_time).toLocaleDateString(),
+		  }))
+		: []
+}
+
+// 创建
+const handleCreateClick = async (res: UsbKeyInfoWithId) => {
+	const result = await handleCreateUsbKey(res)
+
+	return {
+		...res,
+		enable_time: new Date(res.enable_time).toLocaleDateString(),
+		collection_time: new Date(res.collection_time).toLocaleDateString(),
+		return_time: new Date(res.return_time).toLocaleDateString(),
+		_id: result,
+	}
+}
+
+// 删除
+const handleDeleteClick = async (usbKey: UsbKeyInfoWithId) => {
+	const res = await handleDeleteUsbKey(usbKey)
+
+	return res
+}
+
+// 更新
+const handleUpdateClick = async (res: UsbKeyInfoWithId) => {
+	const result = await handleUpdateUsbKey(res)
+
+	return result
+}
+
 const UsbKey = () => {
 	const users = useAppSelector((state) =>
 		state.users.map((user) => user.username || '').concat('')
 	)
 
-	const [rows, setRows] = useState<UsbKeyInfoWithId[]>([])
-
 	const [openDialog, setOpenDialog] = useState(false)
 
 	const [currentRow, setCurrentRow] = useState<UsbKeyInfoWithId | null>(null)
 
-	const [childHook, parentHook] = useChildToParent()
+	const [childHook, parentHook] = useChildToParent<UsbKeyInfoWithId>()
 
-	const [isLoading, setIsLoading] = useState(false)
+	const queryClient = useQueryClient()
 
-	// 初始化
-	useEffect(() => {
-		const getUsbKeys = async () => {
-			const { find_usb_key } = await _fetch({ find_usb_key: {} })
+	// 获取数据
+	const query = useQuery({ queryKey: ['usb_key'], queryFn: getUsbKeys })
 
-			if (find_usb_key) {
-				const { success, data } = find_usb_key
+	//创建
+	const creation = useMutation({
+		mutationFn: async () => {
+			setOpenDialog(false)
 
-				const newData = data.map((d: UsbKeyInfoWithId) => ({
-					...d,
-					enable_time: new Date(d.enable_time).toLocaleDateString(),
-					collection_time: new Date(d.collection_time).toLocaleDateString(),
-					return_time: new Date(d.return_time).toLocaleDateString(),
-				}))
+			handleCreateClick(parentHook())
+		},
+		onSuccess: (data) => {
+			queryClient.refetchQueries({ queryKey: ['usb_key'] })
+		},
+	})
 
-				console.log(newData)
+	//删除
+	const deletion = useMutation({
+		mutationFn: async (usbKey: UsbKeyInfoWithId) => {
+			setOpenDialog(false)
 
-				success && setRows(newData)
-			}
-		}
+			handleDeleteClick(usbKey)
+		},
+		onSuccess: (data) => {
+			console.log(data)
 
-		getUsbKeys()
-	}, [])
+			queryClient.setQueryData(['usb_key'], (oldData) => oldData)
 
-	// 创建
-	const handleCreateClick = async () => {
-		const res = parentHook()
-
-		setIsLoading(true)
-		setOpenDialog(false)
-
-		const result = await handleCreateUsbKey(res)
-
-		setIsLoading(false)
-
-		if (result) {
-			setRows((olds) => [
-				{
-					...{
-						...res,
-						enable_time: new Date(res.enable_time).toLocaleDateString(),
-						collection_time: new Date(res.collection_time).toLocaleDateString(),
-						return_time: new Date(res.return_time).toLocaleDateString(),
-					},
-					_id: result.result,
-				},
-				...olds,
-			])
-		}
-	}
-
-	// 删除
-	const handleDeleteClick = async (usbKey: UsbKeyInfoWithId) => {
-		setIsLoading(true)
-		setOpenDialog(false)
-
-		const result = await handleDeleteUsbKey(usbKey)
-
-		setIsLoading(false)
-
-		if (result) {
-			setRows((olds) => olds.filter((old) => old._id != usbKey._id))
-		}
-	}
+			// queryClient.refetchQueries({ queryKey: ['usb_key'] })
+		},
+	})
+	console.log(query.data)
 
 	// 更新
-	const handleUpdateClick = async () => {
-		const res = parentHook()
+	const updation = useMutation({
+		mutationFn: async () => {
+			setOpenDialog(false)
 
-		setOpenDialog(false)
-
-		setIsLoading(true)
-
-		const result = await handleUpdateUsbKey(res)
-
-		setIsLoading(false)
-
-		if (result) {
-			setRows((olds) =>
-				olds.map((old) =>
-					old._id === res._id
-						? {
-								...res,
-								enable_time: new Date(res.enable_time).toLocaleDateString(),
-								collection_time: new Date(
-									res.collection_time
-								).toLocaleDateString(),
-								return_time: new Date(res.return_time).toLocaleDateString(),
-						  }
-						: old
-				)
-			)
-		}
-	}
+			handleUpdateClick(parentHook())
+		},
+		onSuccess: (data) => {
+			queryClient.refetchQueries({ queryKey: ['usb_key'] })
+		},
+	})
 
 	return (
-		<div>
+		<Suspense fallback={<HamsterLoading />}>
 			<div className="h-12 px-4 text-2xl">{`数字证书`}</div>
 
 			<Table
 				columns={columns}
-				rows={rows}
+				rows={query.data}
 				renderCustomToolbar={
 					<Tooltip title={'新增'}>
 						<IconButton
@@ -217,7 +209,7 @@ const UsbKey = () => {
 						>{`编辑`}</CustomButton>
 
 						<CustomButton
-							onClick={() => handleDeleteClick(row.original)}
+							onClick={() => deletion.mutateAsync(row.original)}
 						>{`删除`}</CustomButton>
 					</Box>
 				)}
@@ -227,7 +219,11 @@ const UsbKey = () => {
 				open={openDialog}
 				onClose={() => setOpenDialog(false)}
 				title={`数字证书`}
-				onOk={currentRow === null ? handleCreateClick : handleUpdateClick}
+				onOk={
+					currentRow === null
+						? () => creation.mutateAsync()
+						: () => updation.mutateAsync()
+				}
 			>
 				<UsbKeyDetail
 					emitValue={childHook}
@@ -235,7 +231,7 @@ const UsbKey = () => {
 					userSelection={users}
 				/>
 			</DialogWraper>
-		</div>
+		</Suspense>
 	)
 }
 

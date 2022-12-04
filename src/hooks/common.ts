@@ -1,16 +1,16 @@
-type UseChildToParent = [
-	childHook: (cb: () => any) => void,
+type UseChildToParent<T = any> = [
+	childHook: (cb: () => T) => void,
 
-	parentHook: () => any
+	parentHook: () => T
 ]
 
 // 子组件传值给父组件
-export const useChildToParent = (): UseChildToParent => {
-	let callback: () => any
+export const useChildToParent = <T>(): UseChildToParent<T> => {
+	let callback: () => T
 
 	const parentHook = () => callback()
 
-	const childHook = (cb: () => any) => {
+	const childHook = (cb: () => T) => {
 		callback = cb
 	}
 	return [childHook, parentHook]

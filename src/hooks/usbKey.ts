@@ -3,94 +3,90 @@ import { _fetch } from '@apis/fetch'
 import { confirmbar, noticebar } from '@apis/mitt'
 
 export const handleCreateUsbKey = async (usbKey: UsbKeyInfo) => {
-  const { create_usb_key } = await _fetch({ create_usb_key: usbKey })
+	const { create_usb_key } = await _fetch({ create_usb_key: usbKey })
 
-  if (create_usb_key) {
-    const { success, data, errmsg } = create_usb_key
+	if (create_usb_key) {
+		const { success, data, errmsg } = create_usb_key
 
-    return success
-      ? (noticebar({
-          status: 'success',
-          message: '创建数字证书成功',
-        }),
-        {
-          result: data,
-        })
-      : noticebar({
-          status: 'error',
-          message: errmsg,
-        })
-  }
+		return success
+			? (noticebar({
+					status: 'success',
+					message: '创建数字证书成功',
+			  }),
+			  data)
+			: noticebar({
+					status: 'error',
+					message: errmsg,
+			  })
+	}
 
-  return noticebar({
-    status: 'error',
-    message: `创建数字证书失败`,
-  })
+	return noticebar({
+		status: 'error',
+		message: `创建数字证书失败`,
+	})
 }
 
 export const handleDeleteUsbKey = async (usbKey: UsbKeyInfoWithId) => {
-  const isSure = await confirmbar({
-    title: '提示',
-    message: `确定删除此数字证书?`,
-  })
+	const isSure = await confirmbar({
+		title: '提示',
+		message: `确定删除此数字证书?`,
+	})
 
-  if (!isSure) {
-    return
-  }
+	if (!isSure) {
+		return
+	}
 
-  const { delete_usb_key } = await _fetch({ delete_usb_key: usbKey })
+	const { delete_usb_key } = await _fetch({ delete_usb_key: usbKey })
 
-  if (delete_usb_key) {
-    const { success, data, errmsg } = delete_usb_key
+	if (delete_usb_key) {
+		const { success, data, errmsg } = delete_usb_key
 
-    if (success) {
-      noticebar({
-        status: 'success',
-        message: `删除数字证书成功`,
-      })
+		if (success) {
+			noticebar({
+				status: 'success',
+				message: `删除数字证书成功`,
+			})
 
-      return {
-        result: data,
-      }
-    }
+			return data
+		}
 
-    return noticebar({
-      status: 'error',
-      message: errmsg,
-    })
-  }
+		return noticebar({
+			status: 'error',
+			message: errmsg,
+		})
+	}
 
-  return noticebar({
-    status: 'error',
-    message: '删除数字证书失败',
-  })
+	return noticebar({
+		status: 'error',
+		message: '删除数字证书失败',
+	})
 }
 
 export const handleUpdateUsbKey = async (usbKey: UsbKeyInfoWithId) => {
-  const { modify_usb_key } = await _fetch({ modify_usb_key: usbKey })
+	const { modify_usb_key } = await _fetch({ modify_usb_key: usbKey })
 
-  if (modify_usb_key) {
-    const { success, data, errmsg } = modify_usb_key
+	if (modify_usb_key) {
+		const { success, data, errmsg } = modify_usb_key
 
-    if (success) {
-      noticebar({
-        status: 'success',
-        message: `变更数字证书成功`,
-      })
+		if (success) {
+			noticebar({
+				status: 'success',
+				message: `变更数字证书成功`,
+			})
 
-      return {
-        result: data,
-      }
-    }
+			return {
+				result: data,
+			}
+		}
 
-    return noticebar({
-      status: 'error',
-      message: errmsg,
-    })
-  }
+		return noticebar({
+			status: 'error',
+			message: errmsg,
+		})
+	}
 
-  return noticebar({
-    status: 'error',
-    message: `变更数字证书失败`,
-  })
+	return noticebar({
+		status: 'error',
+		message: `变更数字证书失败`,
+	})
 }
